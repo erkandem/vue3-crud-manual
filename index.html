@@ -3,9 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Title</title>
+    <title>Vue CRUD Course</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" integrity="sha512-NhSC1YmyruXifcj/KFRWoC561YpHpc5Jtzgvbuzx5VozKpWvQ+4nXhPdFgmx8xqexRcpAglTj9sIBWINXa8x5w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <link rel="stylesheet" href="css/style.css">
+
+    <script src="https://unpkg.com/vue@3"></script>
 </head>
 <body>
+    <div id="vue-app">
+        <header>
+            <div class="title">
+                <h1>{{ navTitle }}</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li>Home</li>
+                    <li>About</li>
+                    <li>Contact</li>
+                </ul>
+            </nav>
+        </header>
 
+        <main>
+            <h1>Content goes here!</h1>
+        </main>
+
+        <footer>
+            <h4>{{ footerMessage }}</h4>
+        </footer>
+    </div>
+<script type="text/javascript">
+    const app = Vue.createApp({
+        data() {
+            return {
+                navTitle: 'Vue Course',
+                footerMessage: 'testdriven.io',
+            }
+        }
+    })
+    const mountedApp = app.mount('#vue-app')
+
+</script>
 </body>
+
 </html>

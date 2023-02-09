@@ -1,0 +1,41 @@
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+    /*
+    border: 1px solid black;
+  */
+}
+
+body {
+  background-color: #E9E9E9;
+  color: black;
+  font-family: Verdana, sans-serif;
+}
+
+header {
+  margin: auto;
+  padding: 20px;
+  background-color: #88BBD6;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+}
+
+@media screen and (max-width: 700px) {
+  header {
+    flex-direction: column;
+  }
+}
+/*** Footer Style ***/
+footer {
+  text-align: center;
+  border-top: 1px solid #88BBD6;
+  padding: 10px;
+}
+/*** Main Style ***/
+main {
+  margin: 0 auto;
+  max-width: 400px;
+  padding: 1em;
+}
