@@ -28,7 +28,7 @@
 
         <main>
             <ul>
-                <li v-for="user in users" v-bind:key="user">{{ user }}</li>
+                <li v-for="(user, index) in users" v-bind:key="user">{{ index }}: {{ user }}</li>
             </ul>
         </main>
 
