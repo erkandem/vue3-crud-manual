@@ -27,7 +27,9 @@
         </header>
 
         <main>
-            <h1>Content goes here!</h1>
+            <ul>
+                <li v-for="user in users" v-bind:key="user">{{ user }}</li>
+            </ul>
         </main>
 
         <footer>
@@ -40,6 +42,13 @@
             return {
                 navTitle: 'Vue Course',
                 footerMessage: 'testdriven.io',
+                users: [
+                    'user1',
+                    'user2',
+                    'user3',
+                    'user4',
+                    'user5'
+                ]
             }
         }
     })
