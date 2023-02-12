@@ -85,8 +85,8 @@ https://devtools.vuejs.org/
 
 ### v-for Directive
 
-The v- for directive is the way to create for loops.
-This can e.g. be used to populate an unordered list with a dynamic amount of list elements
+The v- for directive is the way to create for-loops in Vue.
+This can e.g. be used to populate an unordered list with a dynamic amount of list elements.
 
 ```JS
 <ul>
@@ -102,5 +102,29 @@ We can additionally unpack the index
 ```JS
 <ul>
     <li v-for="(user, index) in users" v-bind:key="user">{{ index }}: {{ user }}</li>
+</ul>
+```
+
+### v-on and v-show directive
+
+#### event listener
+`v-on` is a directive which will attach listener to the element to which the directive is added as an attribute.
+
+```html
+<button v-on:click="displayUsers = !displayUsers">Display Users!</button>
+```
+This assumes that a `displayUsers` data-property exists. 
+Notice that we can 
+- change the value of the property and
+- that we have access to the value of properties and
+- apply logic to it.
+
+Notice that the event here is a `click` on the element.
+#### conditional visibility
+
+`v-show` can be used to change the visibility of elements.
+The following examples visibility is now conditional of the truth value of the  `displayUsers` data property
+```html
+<ul v-show="displayUsers">
 </ul>
 ```

@@ -27,7 +27,9 @@
         </header>
 
         <main>
-            <ul>
+            <button v-on:click.once="displayUsers = !displayUsers ">Display Users!</button>
+            <h1>List of Users:</h1>
+            <ul v-show="displayUsers">
                 <li v-for="(user, index) in users" v-bind:key="user">{{ index }}: {{ user }}</li>
             </ul>
         </main>
@@ -48,7 +50,8 @@
                     'user3',
                     'user4',
                     'user5'
-                ]
+                ],
+                displayUsers: false
             }
         }
     })
