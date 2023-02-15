@@ -128,3 +128,41 @@ The following examples visibility is now conditional of the truth value of the  
 <ul v-show="displayUsers">
 </ul>
 ```
+### v-if and v-else
+
+The `v-if` directive has a similar effect as the  `v-show` directive.
+The difference is that `v-show ` regulates the `display: none` style attribute
+whereas the `v-if` creates / destroys the sub-elements.
+
+`v-show` should be used for simple objects which are expected
+to be toggled often.
+
+`v-if` should be used for elements which are more complex, are rarely toggled bc
+the state of the sub-elements will be more clear. 
+```html
+<main>
+    <button v-on:click="displayUsers = !displayUsers">Display Users!</button>
+    <h1>List of Users:</h1>
+    <ul v-if="displayUsers">
+        <li v-for="(user, index) in users" v-bind:key="user">{{ index }}: {{ user }}</li>
+    </ul>
+</main>
+```
+
+The tutorial advises to use the `v-else` directive after places where a `v-if` directive is used.
+Both need to be on the same element hierarchy.
+```html
+<!-- valid -->
+<div>
+    <ul v-if="condition"></ul>
+    <ul v-else></ul>
+</div>
+<!-- invalid bc if and else clause are on different levels -->
+<div>
+    <ul v-if="condition"></ul>
+    <div>
+        <ul v-else></ul>
+    </div>
+</div>
+
+```
