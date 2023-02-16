@@ -226,3 +226,26 @@ property is changed.
 `v-on:click` of the submit input field is used to capture the "send" event and process it with the method `addNewUser`.
 The current value of `newUser` is used as an argument.
 
+### computed properties 1
+
+The `computed` property of the Vue application holds methods which 
+can return values based on logic. They are comparable to a property on a Django model.
+The advantage of a computed property is that we can take values of many data points into account.
+
+```html
+
+{{ renderingOfComputedValue }}
+<script>
+    const = Vue.createApp({
+        data() {
+            // ...
+        },
+        methods: {},
+        computed: {
+            renderingOfComputedValue () {
+                return this.someValue + this.otherValue
+            }
+        }
+            })
+</script>
+```

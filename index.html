@@ -35,18 +35,12 @@
                 <input type="submit" value="Add User" v-on:click="addNewUser(newUser)"></input>
             </div>
             <div class="list-users">
-                <button v-on:click="changeDisplay">Display Users!</button>
                 <h1>List of Users:</h1>
-                <div  v-if="!displayUsers">
-                    <ul>
-                        <h4>Users are not being displayed.</h4>
-                    </ul>
-                </div>
-                <div v-else>
+                <ul>
                     <li v-for="(user, index) in users" v-bind:key="user">{{ index }}: {{ user }}</li>
-                </div>
+                </ul>
+            <h4>{{ numberOfUsersText }}</h4>
             </div>
-
         </main>
 
         <footer>
@@ -69,6 +63,15 @@
                 ],
                 displayUsers: false
             }
+        },
+        computed: {
+          numberOfUsersText() {
+              if (this.users.length === 1) {
+                  return 'There is 1 user.'
+              } else {
+                  return 'There are ' + this.users.length + ' users.'
+              }
+          }
         },
         methods: {
             changeDisplay() {
