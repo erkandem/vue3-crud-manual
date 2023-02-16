@@ -27,7 +27,7 @@
         </header>
 
         <main>
-            <button v-on:click="displayUsers = !displayUsers ">Display Users!</button>
+            <button v-on:click="changeDisplay">Display Users!</button>
             <h1>List of Users:</h1>
             <div  v-if="!displayUsers">
                 <ul>
@@ -57,6 +57,11 @@
                     'user5'
                 ],
                 displayUsers: false
+            }
+        },
+        methods: {
+            changeDisplay() {
+                this.displayUsers = !this.displayUsers;
             }
         }
     })

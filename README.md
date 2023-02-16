@@ -166,3 +166,23 @@ Both need to be on the same element hierarchy.
 </div>
 
 ```
+
+### methods
+it is advised to leave logic in the JS instead of the html. 
+As an example the toggling of the variable `displayUsers` data property is currently done
+within the HTML:
+```html
+<button v-on:click="displayUsers = !displayUsers">Display Users!</button>
+```
+
+Instead, we can write a reusable method and link it up in the HTML instead.
+```js
+const = app = Vue.createApp({
+    data () {
+        return {
+            property: 'value'
+        } 
+    }
+});
+
+```
