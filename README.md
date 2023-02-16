@@ -167,7 +167,7 @@ Both need to be on the same element hierarchy.
 
 ```
 
-### methods
+### methods 1
 it is advised to leave logic in the JS instead of the html. 
 As an example the toggling of the variable `displayUsers` data property is currently done
 within the HTML:
@@ -186,3 +186,43 @@ const = app = Vue.createApp({
 });
 
 ```
+
+### methods 2
+
+The concept of data binding connects data in a Vue app with the attributes of an HTML element.
+For example, we can access values of a form or field and process the data with methods.
+
+```html
+<div class="add-user-input">
+    <input type="text" v-model="newUser" placeholder="Enter new user..."></input>
+    <input type="submit" value="Add User" v-on:click="addNewUser(newUser)"></input>
+</div>
+...
+<script>
+    const app = Vue.createApp({
+        data() {
+            return {
+                //...
+                newUser: '',
+                users: [
+                ]
+            }
+        },
+        methods: {
+            //...
+            addNewUser(newUserInput) {
+                if (newUserInput !== '') {
+                    this.users.push(newUserInput)
+                    this.newUser = ''
+                }
+            }
+        }
+</script>
+```
+`v-model` creates a two-way data binding. If the user changes the value in the input field, the value in the data property
+of the Vue instance will change. Likewise, the displayed string in the input field will change if the value of the data
+property is changed.
+
+`v-on:click` of the submit input field is used to capture the "send" event and process it with the method `addNewUser`.
+The current value of `newUser` is used as an argument.
+

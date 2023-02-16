@@ -9,7 +9,9 @@
 
     <link rel="stylesheet" href="css/style.css">
 
-    <script src="https://unpkg.com/vue@3"></script>
+    <!-- <script src="https://unpkg.com/vue@3"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@3"></script>
+
 </head>
 <body>
     <div id="vue-app">
@@ -27,16 +29,24 @@
         </header>
 
         <main>
-            <button v-on:click="changeDisplay">Display Users!</button>
-            <h1>List of Users:</h1>
-            <div  v-if="!displayUsers">
-                <ul>
-                    <h4>Users are not being displayed.</h4>
-                </ul>
+            <div class="add-user-input">
+
+                <input type="text" v-model="newUser" placeholder="Enter new user"></input>
+                <input type="submit" value="Add User" v-on:click="addNewUser(newUser)"></input>
             </div>
-            <div v-else>
-                <li v-for="(user, index) in users" v-bind:key="user">{{ index }}: {{ user }}</li>
+            <div class="list-users">
+                <button v-on:click="changeDisplay">Display Users!</button>
+                <h1>List of Users:</h1>
+                <div  v-if="!displayUsers">
+                    <ul>
+                        <h4>Users are not being displayed.</h4>
+                    </ul>
+                </div>
+                <div v-else>
+                    <li v-for="(user, index) in users" v-bind:key="user">{{ index }}: {{ user }}</li>
+                </div>
             </div>
+
         </main>
 
         <footer>
@@ -49,6 +59,7 @@
             return {
                 navTitle: 'Vue Course',
                 footerMessage: 'testdriven.io',
+                newUser: '',
                 users: [
                     'user1',
                     'user2',
@@ -62,6 +73,12 @@
         methods: {
             changeDisplay() {
                 this.displayUsers = !this.displayUsers;
+            },
+            addNewUser(newUserInput) {
+                if (newUserInput !== '') {
+                    this.users.push(newUserInput)
+                    this.newUser = ''
+                }
             }
         }
     })
