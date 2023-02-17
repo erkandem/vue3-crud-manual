@@ -386,4 +386,95 @@ to avoid collisions with builtin HTML tags (e.g. in the case of `header`).
 The setup is going to be change to work with node and npm.
 For that I followed the instructions from https://github.com/nodesource/distributions.
 
+While the tutorial works with:
+```sh
+$ node -v
+v16.16.0
+$ npm -v
+8.13.2
+```
+I have:
+```sh
+$ node -v
+v18.14.1
+$ npm -v
+9.3.1
+```
+What could possibly go wrong?
 
+The journey is continued with 
+```sh
+npm init vue@latest
+```
+Today I got `create-vue@3.5.0` vs `create-vue@3.3.0` described in the tut.
+
+Summary of init options:
+✔ Project name: … vue-crud-manual-auto
+✔ Add TypeScript? … No
+✔ Add JSX Support? … No
+✔ Add Vue Router for Single Page Application development? … No
+✔ Add Pinia for state management? … No
+✔ Add Vitest for Unit Testing? … Yes
+✔ Add an End-to-End Testing Solution? › No
+✔ Add ESLint for code quality? …  Yes
+✔ Add Prettier for code formatting? … No
+
+After the right config for the folder was set in place we run:
+```sh
+npm install
+```
+
+The developement server in this version can be started with:
+```sh
+npm run dev
+```
+
+### Components Part 2
+
+#### Project structure
+The structure of a node supported app is:
+```
+.
+├── index.html
+├── src
+│   ├── App.vue
+│   ├── assets
+│   │   ├── base.css
+│   │   └── main.css
+│   ├── components
+│   │   └── AppHeader.vue
+│   └── main.js
+```
+The most basic Structure here is the component `AppHeader.vue`.
+The components are going to be imported into `App.vue` and assembled to an app.
+The assembled app is going to be imported into `main.js` where the mounting will take place.
+`main.js` is going to be required from `index.html`.
+
+#### Component Structure
+The basic structure of a component file is:
+```vue
+<script setup>
+</script>
+
+<template>
+</template>
+
+<style scoped>
+</style>
+```
+
+In this case the CSS defined here will only be applied to elements in that specific
+file. The `scoped` keyword is responsible for that.
+
+#### layering of CSS Files
+The most basic CSS (e.g. resetting or normalize) is paced inside `base.css`.
+`base.css` is imported into `main.css` with:
+
+```css
+@import "./base.css";
+```
+Finally, `base.css` is imported into `main.js` with:
+
+```JS
+import './assets/main.css'
+```
