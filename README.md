@@ -348,3 +348,37 @@ div warningDivStyle {
     color: orange;   
 }
 ```
+
+## Part 2
+
+The second part is going to be about components, Vue build tools and testing.
+As a preparation for the build tools, we are going to separate our JS code
+from our HTML file into a file called `app.vue`.
+
+### Components Part 1
+
+Components are parts of an application. The syntax for defining a component is:
+
+```JS
+const app = Vue.createApp({});
+app.component(
+    'app-specific-name-for-component',
+    {
+        'template': '<div>Minimalist static template</div>'
+    }
+)
+```
+
+The `component` factory method takes two arguments.
+The first argument is the component name. In this case it's `'app-specific-name-for-component'`.
+The defined component can now be used in the area where our Vue app is mounted:
+```HTML
+<div id="vue-app">
+    <app-specific-name-for-component></app-specific-name-for-component>
+</div>
+```
+Notice the that it's advised to  use `app` as an additional namespace
+to avoid collisions with builtin HTML tags (e.g. in the case of `header`).
+
+
+
