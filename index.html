@@ -1,56 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8">
+    <link rel="icon" href="/favicon.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vue CRUD Course</title>
-
-    <link
-            rel="stylesheet"
-            href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"
-            integrity="sha512-NhSC1YmyruXifcj/KFRWoC561YpHpc5Jtzgvbuzx5VozKpWvQ+4nXhPdFgmx8xqexRcpAglTj9sIBWINXa8x5w=="
-            crossorigin="anonymous"
-            referrerpolicy="no-referrer"
-    />
-    <link rel="stylesheet" href="css/style.css">
-
-    <!-- <script src="https://unpkg.com/vue@3"></script> -->
-    <script src="https://cdn.jsdelivr.net/npm/vue@3"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
-
-</head>
-<body>
-    <div id="vue-app">
-        <app-header></app-header>
-        <main>
-            <div class="add-user-input">
-
-                <input type="text" v-model="newUser" placeholder="Enter new user"></input>
-                <input type="submit" value="Add User" v-on:click="addNewUser(newUser)"></input>
-            </div>
-            <div class="list-users">
-                <h1>List of Users:</h1>
-                <ul>
-                    <li v-for="(user, index) in users" v-bind:style="{color: usersTextColor[index]}" v-bind:key="user">{{ index }}: {{ user }}</li>
-                </ul>
-            <h4>{{ numberOfUsersText }}</h4>
-            </div>
-            <div class="search-users" v-show="displaySearch">
-                <h1 v-bind:class="searchTextClass">Search Users:</h1>
-                <div class="search-user-input">
-                    <label for="searchInput">Search for:</label>
-                    <input type="text" v-model="searchName" id="searchInput"></input>
-                </div>
-                <ul>
-                    <li v-for="user in searchResults" v-bind:key="user">{{ user }}</li>
-                </ul>
-            </div>
-        </main>
-
-        <app-footer></app-footer>
-    </div>
-    <script src='app.vue' type="text/javascript"></script>
-
-</body>
-
+    <title>Vite App</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
 </html>

@@ -381,4 +381,9 @@ Notice the that it's advised to  use `app` as an additional namespace
 to avoid collisions with builtin HTML tags (e.g. in the case of `header`).
 
 
+## Vue build tools
+
+The setup is going to be change to work with node and npm.
+For that I followed the instructions from https://github.com/nodesource/distributions.
+
 
