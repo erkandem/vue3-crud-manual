@@ -48,11 +48,12 @@
             <div class="list-users">
                 <h1>List of Users:</h1>
                 <ul>
-                    <li v-for="(user, index) in users" v-bind:key="user">{{ index }}: {{ user }}</li>
+                    <li v-for="(user, index) in users" v-bind:style="{color: usersTextColor[index]}" v-bind:key="user">{{ index }}: {{ user }}</li>
                 </ul>
             <h4>{{ numberOfUsersText }}</h4>
             </div>
             <div class="search-users" v-show="displaySearch">
+                <h1 v-bind:class="searchTextClass">Search Users:</h1>
                 <div class="search-user-input">
                     <label for="searchInput">Search for:</label>
                     <input type="text" v-model="searchName" id="searchInput"></input>
@@ -81,12 +82,26 @@
                     'user4',
                     'user5'
                 ],
+                usersTextColor: [
+                    'black',
+                    'black',
+                    'black',
+                    'black',
+                    'black'
+                ],
                 displayUsers: false,
                 displaySearch: false,
                 searchName: ''
             };
         },
         computed: {
+            searchTextClass() {
+                if (this.searchName !== '') {
+                    return 'searchTitleBold';
+                } else {
+                    return 'searchTitleNormal';
+                }
+            },
           numberOfUsersText() {
               if (this.users.length === 1) {
                   return 'There is 1 user.';
@@ -113,6 +128,10 @@
                 if (newUserInput !== '') {
                     this.users.push(newUserInput);
                     this.newUser = '';
+                    for (let i = 0; i < this.users.length - 1 ; i++) {
+                        this.usersTextColor[i] = 'black';
+                    }
+                    this.usersTextColor.push('darkgreen');
                 }
             }
         }

@@ -302,3 +302,49 @@ Note that we use the computed property in a for loop.
 The code woks although our searchResults returns two different types.
 In the case of at least one search result, it returns an array of stings.
 In the case of no result, it will return just an empty string
+
+
+### style binding
+
+HTML elements can be styled dynamically using Vue.
+One way would be to modify the style inline by using setting a value to the `style` attribute.
+Another way would be to predefine classes in our CSS file and switch the target tags class to our need.
+
+#### inline style binding
+```html
+<li v-for="(user, index) in users" v-bind:style="{color: randomColor}" v-bind:key="user">{{ user }}</li>
+```
+Which would ask for a computed property `randomColor`, which returns valid css color values.
+
+#### class based style binding
+
+We bind the target elements class attribute to Vue using `v-bind:class` and set it to a 
+computed method named `someFancyComputedValue`
+```html
+<div v-bind:class="someFancyComputedValue">Lorem Ipsum</div>
+
+```
+Our JS code would than look like:
+```JS
+// ...
+computed: {
+    // ...
+    someFancyComputedValue() {
+        if (this.condition) {
+            return 'regularDivStyle';
+        } else {
+            return 'warningDivStyle';
+        }
+    }
+    // ...
+}
+```
+Of course that assumes that these selectors are defined in our CSS files:
+```CSS
+div regularDivStyle {
+    color: black;
+}
+div warningDivStyle {
+    color: orange;   
+}
+```
