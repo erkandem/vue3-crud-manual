@@ -249,3 +249,56 @@ The advantage of a computed property is that we can take values of many data poi
             })
 </script>
 ```
+
+### computed properties 2
+
+A search feature can be introduced as a more complex example for computed properties.
+For that it is needed to collect the user input for the search term:
+
+```html
+<div class="search-user-input">
+    <label for="searchInput">Search for:</label>
+    <input type="text" v-model="searchName" id="searchInput"></input>
+</div>
+```
+
+The input field has a data binding with the `searchName` data property.
+Somehow, we would like to go through the list of users and filter out usernames
+which match our criteria.
+
+A method can be preferred if there is a distinct event triggering a calculation.
+In the case of search it now common to get the results as we type.
+Therefore, a computed property makes more sense.
+
+```JS
+const app = Vue.createApp({
+    // ...
+    computed: {
+        // ...
+        searchResults() {
+            if (this.searchName !== '') {
+                return this.users.filter(el => el.match(this.searchName));
+            } else {
+                return '';
+            }
+        }
+    }
+    // ...
+});
+```
+The `filter` method of the array expects a function from us.
+This is done on the go using an arrow style function.
+Each element of the array will be evaluated against that function.
+In our case, the `match` string method is used.
+
+Finally, after 1) collecting the search term and 2) applying a filtering logic
+we can 3) render the results:
+```html
+<ul>
+    <li v-for="user in searchResults" v-bind:key="user">{{ user }}</li>
+</ul>
+```
+Note that we use the computed property in a for loop.
+The code woks although our searchResults returns two different types.
+In the case of at least one search result, it returns an array of stings.
+In the case of no result, it will return just an empty string
