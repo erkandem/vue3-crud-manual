@@ -5,7 +5,14 @@ import AppHeader from '@/components/AppHeader.vue'
 describe('AppHeader.vue Test', () => {
   it('renders message when component is created', () => {
     // render the component
-    const wrapper = shallowMount(AppHeader)
+    const wrapper = shallowMount(
+        AppHeader,
+        {
+          propsData: {
+            title: 'Vue Project'
+          }
+        }
+    )
 
     // check that the title is displayed
     expect(wrapper.text()).toMatch('Vue Project')

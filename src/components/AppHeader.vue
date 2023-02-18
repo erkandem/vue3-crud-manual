@@ -1,15 +1,13 @@
 <script setup>
-import { ref } from '@vue/reactivity'
-
-// the usage of ref will make it possible to change it later
-// out of the Vue
-const navTitle = ref('Vue Project')
+    const props = defineProps({
+      title: {type: String, required: true}
+    })
 </script>
 
 <template>
     <header>
         <div class="title">
-            <h1>{{ navTitle }}</h1>
+            <h1>{{ title }}</h1>
         </div>
         <nav>
             <ul>

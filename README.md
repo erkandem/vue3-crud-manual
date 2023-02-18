@@ -636,3 +636,74 @@ All files        |     100 |      100 |     100 |     100 |
   AppHeader.vue  |     100 |      100 |     100 |     100 |                   
 -----------------|---------|----------|---------|---------|-------------------
 ```
+
+### Props
+
+Props describe properties which can span across the components' hierarchy.
+First, the title property need to marked to be dynamic:
+
+```js 
+// AppHeader.vue
+<script setup>
+const props = defineProps({
+    title: {type: String, required: true}
+})
+</script>
+
+<template>
+    <h1>{{ title }}</h1>
+</template>
+```
+#### passing via attribute key-value during usage:
+
+```js
+// App.vue
+<template>
+    <AppHeader title="Vue Project"></AppHeader>
+</template>
+```
+
+#### passing props dynamically
+passing prop values dynamically is recommended by the tutorial.
+
+E.g. a variable named `headerTitle` is defined and initialized using `ref`.
+```js
+// App.vue
+<script>
+    ...
+    const headerTitle = ref("Vue Project (Dynamic)")
+</script>
+```
+And connected to the property called `title` in the scope of the AppHeader component.
+
+```js
+    <AppHeader v-bind:title="headerTitle"></AppHeader>
+```
+
+Just like in the static case, there must be a prop definition in the script part of the subcomponent:
+
+```js 
+// AppHeader.vue
+<script setup>
+const props = defineProps({
+    title: {type: String, required: true}
+})
+</script>
+```
+
+#### changes to the unit tests
+The structure of the unit tests can be kept as is.
+However, since the component now expects external data during initialisation,
+we will need to provide that additional data during tests by passing argument
+to the `shallowMount` function:
+
+```JS
+    const wrapper = shallowMount(
+        AppHeader,
+        {
+          propsData: {
+            title: 'Vue Project'
+          }
+        }
+    )
+```
