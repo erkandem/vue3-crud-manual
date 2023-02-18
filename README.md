@@ -707,3 +707,29 @@ to the `shallowMount` function:
         }
     )
 ```
+
+### slots
+
+slot are a way to inherit HTML like elements. In contrast, props are 
+better to pass data across component hierarchies.
+
+In the subordinate component we define the location for a slot like this:
+
+```JS
+<template>
+    <div>
+        <slot name="message"></slot>
+    </div>
+</template>
+```
+
+In the parent component, this slot can be used with another `template` tag:
+
+```js
+<template>
+    <template v-slot:message>Vue Project from TestDriven.io</template>
+</template>
+```
+
+The naming can be omitted if there is just one slot.
+A short version of `v-slot:message` would be `#:message`.

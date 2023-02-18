@@ -1,12 +1,8 @@
-<script setup>
-import { ref } from '@vue/reactivity'
-
-const footerMessage = ref('TestDriven.io')
-</script>
 
 <template>
     <footer>
-        <h4>{{ footerMessage }}</h4>
+        <p><slot name="message">Default Footer</slot></p>
+        <p><slot name="link"></slot></p>
     </footer>
 </template>
 
