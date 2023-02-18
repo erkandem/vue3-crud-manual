@@ -478,3 +478,161 @@ Finally, `base.css` is imported into `main.js` with:
 ```JS
 import './assets/main.css'
 ```
+
+### Unit Testing 
+
+In the tutorial unit testing is done with `vitest`.
+
+#### File Structure
+
+Tests are stored in the `components` folder within a subdirectory called `__tests__`.
+The naming convention for tests is `<component name>.spec.js`.
+
+```
+├── src
+│   ├── App.vue
+│   ├── assets
+│   │   ├── base.css
+│   │   └── main.css
+│   ├── components
+│   │   └── AppHeader.vue
+│   │   └──__tests__ 
+│   │   │   ├── AppHeader.spec.js
+..  ..  ..  └── ..
+```
+
+#### Test Files
+
+The test files include import statements and the actual test code.
+The following example in which the `AppHeader.vue` component is tested.
+Full test file
+```js
+import { describe, it, expect } from 'vitest'
+
+import { shallowMount } from '@vue/test-utils'
+import AppHeader from '@/components/AppHeader.vue'
+
+describe('AppHeader.vue Test', () => {
+  it('renders message when component is created', () => {
+
+    const wrapper = shallowMount(AppHeader)
+    expect(wrapper.text()).toMatch('Vue Project')
+
+    const items = wrapper.findAll('li')
+    expect(items[2].text()).toMatch('Contact')
+  })
+})
+```
+
+First, testing utilities are imported.
+They include 
+ - `describe` which is used to mark a test suit (i.e. a group of tests),
+ - `it` which is used to define a single unit test.
+    `it` is an alias for `test. 
+ - `expect` which is used to make assertions.
+
+```js
+import { describe, it, expect } from 'vitest'
+import { shallowMount } from '@vue/test-utils'
+import AppHeader from '@/components/AppHeader.vue'
+```
+
+The suit of unit tests set up with `describe`. `describe` takes
+a description and the test functions as an argument.
+```js
+describe('AppHeader.vue Test', () => {
+    // individual tests
+})
+```
+`describe` : https://vitest.dev/api/#describe
+
+An individual test is written using `test` or its alies `it`
+```JS
+it('renders message when component is created', () => {
+    // arrange act assert
+})
+
+```
+`test`:https://vitest.dev/api/#test-api-reference
+ 
+To make assertions on the component we are testing, we will need to run that component.
+That is done with two utilities:
+
+`shallowMount` will mock out subcomponents. This helps isolated testing but requires
+another step of testing which checks the interaction of child nd parent component.
+```js
+const wrapper = shallowMount(AppHeader)
+```
+For that purpose, `mount` can be used which loads all child components.
+```js
+const wrapper = mount(AppHeader)
+```
+wrapper object returned by `mount` and `shallowMount`: https://test-utils.vuejs.org/api/#wrapper-methods
+
+Finally, the assertions can be done on the now live app/component:
+```js
+expect(wrapper.text()).toMatch('Vue Project')
+const items = wrapper.findAll('li')
+expect(items[2].text()).toMatch('Contact')
+```
+
+`expect`: https://vitest.dev/api/expect.html
+
+#### Running The Tests
+Tests can be run with:
+
+```sh
+npm run test:unit
+```
+Missing components were suggested to be installed when I ran the command the first time.
+
+A suggested adjustment of the commands within `package.json` is:
+
+```JSON
+{
+  ...
+  "scripts": {
+    ...
+    "test:unit": "vitest run --environment jsdom",
+    "test:coverage": "vitest run --environment jsdom --coverage",
+    "test:ui": "vitest --environment jsdom --coverage --ui",
+    ...
+  },
+  ...
+}
+```
+After this part of the tutorial, this is what my output looks like:
+
+```sh
+ npm run test:coverage
+
+> vue-crud-manual-auto@0.0.0 test:coverage
+> vitest run --environment jsdom --coverage
+
+
+ RUN  v0.25.8 /home/kan/dev/js/vue-crud-manual
+      Coverage enabled with c8
+
+ ✓ src/components/__tests__/AppFooter.spec.js (1)
+ ✓ src/components/__tests__/AppContent.spec.js (1)
+ ✓ src/components/__tests__/AppHeader.spec.js (1)
+ ✓ src/components/__tests__/App.spec.js (1)
+
+ Test Files  4 passed (4)
+      Tests  4 passed (4)
+   Start at  13:46:40
+   Duration  3.00s (transform 328ms, setup 1ms, collect 820ms, tests 149ms)
+
+ % Coverage report from c8
+-----------------|---------|----------|---------|---------|-------------------
+File             | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-----------------|---------|----------|---------|---------|-------------------
+All files        |     100 |      100 |     100 |     100 |                   
+ src             |     100 |      100 |     100 |     100 |                   
+  App.vue        |     100 |      100 |     100 |     100 |                   
+ src/components  |     100 |      100 |     100 |     100 |                   
+  AppContent.vue |     100 |      100 |     100 |     100 |                   
+  AppFooter.vue  |     100 |      100 |     100 |     100 |                   
+  AppHeader.vue  |     100 |      100 |     100 |     100 |                   
+-----------------|---------|----------|---------|---------|-------------------
+```
