@@ -10,7 +10,9 @@
 
 <template>
     <AppHeader v-bind:title="headerTitle"></AppHeader>
-    <AppContent></AppContent>
+    <AppContent>
+
+    </AppContent>
     <AppFooter>
         <template v-slot:message>Vue Project from TestDriven.io</template>
         <template #:link><a href="https://testdriven.io">TestDriven.io</a></template>

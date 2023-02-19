@@ -733,3 +733,46 @@ In the parent component, this slot can be used with another `template` tag:
 
 The naming can be omitted if there is just one slot.
 A short version of `v-slot:message` would be `#:message`.
+
+### components part 3
+
+In this part, a table similar to the one in part 1 was created.
+This time however with components and test coverage.
+
+We defined created a new component `ListUsers` and defined the users data
+to be passed from the parent via `props`.
+
+As learned earlier the defineProps function is used for that. 
+It does not need to be imported.
+
+```js
+<script setup>
+const props = defineProps({
+    users: {type: Array, required: true}
+})
+<script>
+```
+
+The component was than be assembled in the `AppConent` component.
+```js
+<script>
+import { ref } from '@vue/reactivity'
+const users = ref([{
+    // data
+}])
+</script>
+
+<template>
+    <Listusers v-bind:users="users">
+</template>
+```
+
+The table was dynamically rendered in the `ListUsers` component using the
+`v-for` directive learned in part 1. The unique key to bind HTML elements to
+was picked to be the `users.id` property:
+```js
+        // ...
+<tr v-for="user in users" v-bind:key="user.id">
+    <td> {{ user.id }}</td>
+        // ...
+```
