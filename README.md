@@ -120,6 +120,11 @@ Notice that we can
 - apply logic to it.
 
 Notice that the event here is a `click` on the element.
+The shorthand version for `v-on` is `@`.
+```html
+<button @click="displayUsers = !displayUsers">Display Users!</button>
+```
+
 #### conditional visibility
 
 `v-show` can be used to change the visibility of elements.
@@ -775,4 +780,89 @@ was picked to be the `users.id` property:
 <tr v-for="user in users" v-bind:key="user.id">
     <td> {{ user.id }}</td>
         // ...
+```
+### custom events
+
+Props were used to propagate data from a parent to a child component.
+Custom events enable data to flow the other way around.
+The `AddNewUser` component was created to showcase that.
+
+#### The child component code
+First, our data variables are defined and marked to be reactive:
+```js
+const user = ref({
+  name: '',
+  username: '',
+  email: ''
+})
+```
+Note that the properties of the `user` variable (actually constant, but the values of the properties can be muted)
+can be read or set with: 
+
+```html
+user.value.propertyName,
+```
+`ref` reference. https://vuejs.org/api/reactivity-core.html#ref
+
+Next the `createUser` event to be emitted was declared:
+
+```js
+const emit = defineEmits(['createUser'])
+```
+
+Finally, the event and the arguments to it (form/field data) are prepared and emitted:
+```js
+const addNewUser = () => {
+  emit('createUser', {
+    name: user.value.name,
+    username: user.value.username,
+    email: user.value.email
+  })
+  // Clear the variables used for reading in the new user's info
+  user.value.name = ''
+  user.value.username = ''
+  user.value.email = ''
+}
+```
+
+The emitting function is connected to the submit button.
+In our case, `v-on.click.prevent` was used to block an HTTP Post trigger.
+
+```js
+<form>
+    //....
+    <div class="field">
+        <button v-on:click.prevent="addNewUser">Add User</button>
+    </div>
+    //...
+</form>
+```
+
+#### the parent component code
+The parent component `AppContent` stores the user data.
+We want to add a new user to that array of user objects.
+First, the new component is imported to the component and instantiated in the template part:
+
+```js
+<AddNewUser v-on:createUser="createNewUser"></AddNewUser>
+```
+An event listener is created for the `createUser` event and connected to the
+`createNewUser` callback.
+
+The callback could be defined like this:
+```js
+const createNewUser = (user) => {
+  // Check that all fields are filled in before adding the user
+  if ((user.name !== '') && (user.username !== '') && (user.email !== '')) {
+    var newUser = {
+      id: users.value.length + 1,
+      name: user.name,
+      username: user.username,
+      email: user.email
+    }
+
+    // Add the user to the local array of users
+    users.value.push(newUser)
+  }
+}
 ```
