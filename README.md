@@ -866,3 +866,89 @@ const createNewUser = (user) => {
   }
 }
 ```
+
+### Unite Testing Part III
+
+The testing repertoire was extended to `setup` and `teardown`
+methods.
+In `vitest` they are called `beforeEach` and `afterEach`.
+```js
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+```
+
+In the case of the tests of `AddNewUser` component the mounting of the component
+was moved out of the test in favour of hosting it in setup method.
+
+Interestingly, the `wrapper` is a global variable and the setup and teardown method are
+defined in the file itself. 
+
+It was finally executed what was just mentioned before:
+A test suit function can have multiple individual unit test functions.
+
+Interestingly the async was taken care of in the latter test functions.
+```js
+describe('AddNewUser.vue Test', () => {
+  it('initializes with correct elements', () => {
+    //...
+  })
+
+  it('emits an event when a new user with valid data is added', async () => {
+    //...
+  })
+
+  it('does not emit an event when a new user without data is added', async () => {
+    //...
+  })
+})
+```
+
+It was introduced on how a value can be set to an element:
+
+```js
+  const nameInput = wrapper.find('#newName')
+  await nameInput.setValue('Name1')
+    // some action here
+    // magic
+    // ----
+  expect(nameInput.element.value).toBe('')
+
+```
+
+First, elements can be selected with their `#id` using the `find` method.
+A new value can be assigned to it using the `setValue` method.
+Since, we want the changes to be reflected in the app and JS runs async
+we want to await the `setValue` method to be sure, that it is done before we make
+actions or assertions based the value.
+
+Finally, during assertions the current value of the element can be read using
+the syntax `variableNameOfElement.element.value`.
+
+Interestingly, we can push buttons in our headless app.
+It needs to be awaited for the same reason as we awaited the `setValue` method.
+```js 
+  await wrapper.find('button').trigger('click')
+```
+
+Last but not least, we asked for emitted event with: 
+
+```js
+const emittedEvent = wrapper.emitted('createUser')
+```
+We can also call it without a specific event name.
+Below is the output of 
+```js
+      console.log(wrapper.emitted())
+```
+placed in test called `emits an event when a new user with valid data is added`:
+```sh
+...
+stdout | src/components/__tests__/AddNewUser.spec.js > AddNewUser.vue Test > emits an event when a new user with valid data is added
+{
+  input: [ [ [Event] ], [ [Event] ], [ [Event] ] ],
+  change: [ [ [Event] ], [ [Event] ], [ [Event] ] ],
+  createUser: [ [ [Object] ] ],
+  click: [ [ [MouseEvent] ] ]
+}
+...
+```
+A reminder to have namespaced event names to avoid collisions with builtin or our own events.

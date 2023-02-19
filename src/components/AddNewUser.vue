@@ -1,5 +1,5 @@
 <script setup>
-import {ref} from '@vue/reactivity'
+import { ref } from '@vue/reactivity'
 
 const emit = defineEmits(['createUser'])
 const user = ref({
@@ -11,14 +11,17 @@ const user = ref({
 // function addNewUser() {}
 // const addNewUser => {}
 const addNewUser = () => {
-    emit('createUser', {
-        name: user.value.name,
-        email: user.value.email,
-        username: user.value.username
-    })
-    user.value.name = ''
-    user.value.email = ''
-    user.value.username = ''
+    if ((user.value.name !== '') && (user.value.username !== '') && (user.value.email !== '')) {
+
+        emit('createUser', {
+            name: user.value.name,
+            email: user.value.email,
+            username: user.value.username
+        })
+        user.value.name = ''
+        user.value.email = ''
+        user.value.username = ''
+    }
 }
 </script>
 
