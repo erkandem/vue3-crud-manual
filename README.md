@@ -952,3 +952,97 @@ stdout | src/components/__tests__/AddNewUser.spec.js > AddNewUser.vue Test > emi
 ...
 ```
 A reminder to have namespaced event names to avoid collisions with builtin or our own events.
+
+### Lifecycle Methods
+
+A vue component or application has many stages from between the time
+the code arrives at the browser and the time the page is visibly rendered.
+
+Reference https://vuejs.org/guide/essentials/lifecycle.html.
+
+On each step we can place hooks which can selectivly execute code while
+our component passes through its lifecycle:
+
+ - setup
+ - beforeCreate
+ - created
+ - beforeMount
+ - mounted
+ - beforeUpdate
+ - updated
+ - beforeUnmount
+ - unmounted
+
+#### setup
+
+This code is run first. in the composition API which was used in the 
+single file component approach since part 2 this was called with the
+script tag itself:
+```
+<script setup>
+</script>
+```
+Using the options API the setup method could be plugged in with.
+```html
+<script>
+const app = Vue.createApp({
+  setup() {
+      console.log("setup was called")
+  }
+// ..
+</script>
+```
+
+#### onBeforeCreate
+
+... is called 
+ - after setup, 
+ - before data and props are called
+
+#### onCreated
+ ... is called after 
+ - reactive data,
+ - computed properties,
+ - methods and
+ - watchers are available
+
+#### onBeforeMount
+
+... runs before the Vue instance is mounted into the Vue app or DOM element,
+meaning that the code is not yet rendered to DOM elements itself.
+
+#### onMounted
+
+... is run after the component or Vue app has been mounted, implying that
+all templates and logic within it was rendered to DOM  elements and the style
+has been applied to the elements.
+
+#### onBeforeUpdate
+
+... is run when reactive data which the component depends on changes. An update
+for the respective component is queued.
+
+#### onUpdated
+
+... is run after the change in reactive data has been reflected in the components
+appearance.
+
+
+#### onBeforeUnmount
+
+... is called when an unmount event is queued but not executed yet.
+Everything is still functionally intact at this point in time.
+
+#### onUnmounted
+
+... is called after 
+ - all child components have been unmounted
+ - computed properties are stopped
+ - watchers are unplugged
+
+Could be used for clean up.
+
+The code is placed into the `part-3-lifecycle-hooks` branch.
+
+
+
