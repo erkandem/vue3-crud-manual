@@ -1,32 +1,20 @@
 <script setup>
+import axios from 'axios'
 import { ref } from '@vue/reactivity'
+import { onMounted } from 'vue'
 import ListUsers from './ListUsers.vue'
 import AddNewUser from './AddNewUser.vue'
 
+const usersUrl = 'https://jsonplaceholder.typicode.com/users'
 const message = ref('List of Users:')
+const  users = ref([])
 
-const  users = ref([
-  {
-    id: 1,
-    name: 'User #1',
-    username: 'user_1',
-    email: 'email1@gmail.com',
-  },
-  {
-    id: 2,
-    name: 'User #2',
-    username: 'user_2',
-    email: 'email2@gmail.com',
-  },
-  {
-    id: 3,
-    name: 'User #3',
-    username: 'user_3',
-    email: 'email3@gmail.com',
-  },
-])
 const createNewUser = (user) => {
-    if ((user.name !== '') && (user.email !== '') && (user.username !== '')) {
+    if (
+        (user.name !== '')
+        && (user.email !== '')
+        && (user.username !== '')
+    ) {
         let newUser = {
             id: users.value.length + 1 ,
             name: user.name,
@@ -36,6 +24,28 @@ const createNewUser = (user) => {
         users.value.push(newUser)
     }
 }
+
+onMounted(
+    async () => {
+        axios.get(
+            usersUrl
+        ).then(
+            (response) => {
+                users.value = response.data
+                console.log(users.value)
+            }
+        ).catch(
+            (error) => {
+                console.log('An error occurred')
+                console.log('' + error)
+            }
+        ).finally(
+            () => {
+                console.log('Possibility to do clean up')
+            }
+        );
+    }
+)
 </script>
 
 <template>

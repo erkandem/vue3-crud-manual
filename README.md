@@ -1044,5 +1044,98 @@ Could be used for clean up.
 
 The code is placed into the `part-3-lifecycle-hooks` branch.
 
+### Loading Data via HTTP GET
 
+The code in this chapter was developed beginning with the tests. True TDD.
+
+#### Install Axios and its MockAdapter
+axios is JS library to do HTTP requests.
+The `requests` package of JS so to speak.
+```sh
+npm install axios --save
+```
+The `--save` flag adds the package to `package.json` as the prod dependency.
+
+During the unit tests however we do not want to hit the real API.
+For this purpose `axios-mock-adapter` is installed to the development requirements.
+It has a similar purpose like mock and MagicMock for Python but is more targeted to
+the axios library.
+```sh
+npm install axios-mock-adapter --save-dev
+```
+Axios Docs: https://axios-http.com/docs/intro
+Axios Mock Adapter Docs: https://github.com/ctimmerm/axios-mock-adapter#readme
+
+#### Test Cases
+
+
+##### Multiple Suits per File and Multiple Tests per Suit 
+It was shown that you can have several test suits in one file (i.e. `describe` sections)
+just as well as multiple individual unit tests (i.e. `test()` or short `it`)
+
+##### The Mocking Library
+The mocking library is instantiated on the file level using:
+```js
+let mock = new MockAdapter(axios)
+```
+As such it is available for all test suits and unit test functions.
+
+In contrast to an earlier test file the `beforeEach` and `afterEach` were defined within the `describe` section.
+As the setup for each testsuite is going to be different, and we want to use multiple testsuits
+within the same file it makes sense to narrow down the scope of the setup and teardown methods.
+Importantly regarding the mock we want to reset it:
+```js
+  afterEach(() => {
+    mock.reset();
+    /...
+  })
+```
+So it's cheaper to hit reset instead of getting a fresh new instance?
+
+##### Catching the Lifecylce Method
+The target location for the HTTP request is going to be the `onMounted` hook.
+It's done after the first render to improve UX. To be ready for the hook being called
+1) the mock needs to be configured 
+2) before the component is mounted using e.g. `shallowMount`
+
+
+###### Configuring the Mock
+
+The response on a `get` method of the axios library can be defined per URL
+with a specific status code integer, data object and header object
+```js
+beforeEach( () => {
+    mock.onGet(url).reply(statusCode, data, header)
+})
+```
+
+Just as well we can raise a timeout error:
+
+```js
+    //...
+    mock.onGet(url).timeout();
+    //...
+```
+The same pattern works for mocking other HTTP methods.
+Responses to the HTTP POST method would be mocked with `mock.onPost(...)`
+
+We can return any status code. As such we could test our code to handle 1s, 2s, 3s, 4s, 5s, or rogue ones.
+```js
+    //...
+    mock.onGet(url).reply(418);
+    //...
+```
+
+#### The Application Code
+
+The HTTP request logic is packed into the `onMounted` lifecycle hook.
+The syntax of the axios library is: 
+
+```js
+axios.get(url)
+    .then((response) => {})
+    .catch((error) => {})
+    .finally()
+```
+Interestingly the `async` keyword was necessary to make the code work.
 
