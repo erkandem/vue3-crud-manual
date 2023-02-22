@@ -5,13 +5,24 @@ import MockAdapter from 'axios-mock-adapter'
 import AppContent from '@/components/AppContent.vue'
 
 let mock = new MockAdapter(axios)
-const usersUrl = 'https://jsonplaceholder.typicode.com/users'
+const usersGETUrl = 'https://jsonplaceholder.typicode.com/users'
+const usersPOSTUrl = 'https://jsonplaceholder.typicode.com/users'
 
+const getNewUser3 = () => {
+  /* obviously, I should use a library to create random fake data like faker in python
+  */
+  return {
+    id: 3,
+    name: 'Patrick',
+    username: 'patrick123',
+    email: 'patrick@email.com'
+  }
+}
 describe('AppContent.vue Test with a successful HTTP GET method', () => {
   let wrapper = null
   beforeEach(() => {
     mock.onGet(
-        usersUrl
+        usersGETUrl
     ).reply(
       200,
       [
@@ -28,7 +39,14 @@ describe('AppContent.vue Test with a successful HTTP GET method', () => {
           email: 'Shanna@melissa.tv'
         }
       ]
-    );
+    )
+    mock.onPost(
+        usersPOSTUrl
+    ).reply(
+        201,
+        [
+        getNewUser3()
+        ]);
   wrapper = shallowMount(AppContent)
   })
 
@@ -46,7 +64,7 @@ describe('AppContent.vue Test with a successful HTTP GET method', () => {
     expect(h1Items[0].text()).toMatch(expectedString)
     // inspect mock
     expect(mock.history.get.length).toBe(1)
-    expect(mock.history.get[0].url).toMatch(usersUrl)
+    expect(mock.history.get[0].url).toMatch(usersGETUrl)
     expect(mock.history.get[0].method).toMatch('get')
     // inspect fetched data
     expect(wrapper.vm.users.length).toEqual(2)
@@ -61,9 +79,31 @@ describe('AppContent.vue Test with a successful HTTP GET method', () => {
     expect(wrapper.vm.messageType).toMatch('Success')
 
   })
+  it('saved the user data', async () => {
+    expect(wrapper.vm.users.length).toEqual(2)
+    const newUser3 = getNewUser3()
+
+    wrapper.vm.createNewUser(newUser3)
+    await flushPromises() //  bc already know that we will place an axios call in there
+
+    // Check that one call was made to axios.post()
+    expect(mock.history.post.length).toEqual(1)
+    expect(mock.history.post[0].url).toMatch(usersPOSTUrl)
+    expect(mock.history.post[0].method).toMatch('post')
+    expect(JSON.parse(mock.history.post[0].data)).toEqual(newUser3)
+
+    expect(wrapper.vm.users.length).toEqual(3)
+    expect(wrapper.vm.users[2].name).toMatch(newUser3.name)
+    expect(wrapper.vm.users[2].username).toMatch(newUser3.username)
+    expect(wrapper.vm.users[2].email).toMatch(newUser3.email)
+
+    // check that the banner message indicates success
+    expect(wrapper.vm.messageType).toMatch('Success')
+    expect(wrapper.vm.messageToDisplay).toMatch('SUCCESS! User data was saved!')
+  })
 })
 
-describe('AppContent.vue after a failed HTTP GET request',() => {
+describe('AppContent.vue after a failed HTTP GET request', () => {
   let wrapper = null
   afterEach(() => {
     mock.reset();
@@ -75,13 +115,13 @@ describe('AppContent.vue after a failed HTTP GET request',() => {
     // Configuring the mock after `shallowMount` would miss the e.g.
     // the onMount() lifecycle hook.
     // Why call data after mount? To decrease the time for the first render (i.e. UX)
-    mock.onGet(usersUrl).timeout()
+    mock.onGet(usersGETUrl).timeout()
 
     wrapper = shallowMount(AppContent)
     await flushPromises()
 
     expect(mock.history.get.length).toBe(1);
-    expect(mock.history.get[0].url).toMatch(usersUrl)
+    expect(mock.history.get[0].url).toMatch(usersGETUrl)
     expect(mock.history.get[0].method).toMatch('get')
     expect(wrapper.vm.users.length).toEqual(0)
     // inspect side effect of changing banner status
@@ -91,16 +131,73 @@ describe('AppContent.vue after a failed HTTP GET request',() => {
   })
 
     it('loads no user data when the HTTP GET request returned a 404', async () => {
-    mock.onGet(usersUrl).reply(404)
+    mock.onGet(usersGETUrl).reply(404)
 
     wrapper = shallowMount(AppContent)
     await flushPromises()
 
     expect(mock.history.get.length).toBe(1);
-    expect(mock.history.get[0].url).toMatch(usersUrl)
+    expect(mock.history.get[0].url).toMatch(usersGETUrl)
     expect(mock.history.get[0].method).toMatch('get')
     expect(wrapper.vm.users.length).toEqual(0)
     expect(wrapper.vm.messageToDisplay).toMatch('ERROR! Unable to load user data!')
     expect(wrapper.vm.messageType).toMatch('Error')
   })
 })
+
+describe('AppContent.vue Test with Successful HTTP GET and Failed HTTP POST', () => {
+  let wrapper = null
+
+  beforeEach(() => {
+    // Mock any GET request to the specified URL
+    // NOTE: arguments for reply are (status, data, headers)
+    mock.onGet(usersGETUrl).reply(200, [
+      {
+        id: 1,
+        name: 'Leanne Graham',
+        username: 'Bret',
+        email: 'Sincere@april.biz'
+      },
+      {
+        id: 2,
+        name: 'Ervin Howell',
+        username: 'Antonette',
+        email: 'Shanna@melissa.tv'
+      }
+    ])
+
+    // Mock any POST request to the specified URL
+    // NOTE: arguments for reply are (status, data, headers)
+    mock.onPost(usersPOSTUrl).reply(404)
+
+    // render the component
+    wrapper = shallowMount(AppContent)
+  })
+
+  afterEach(() => {
+    mock.reset();
+    wrapper.unmount()
+  })
+
+  it('does not save the new user data on failed HTTP POST call', async () => {
+    const newUser3 = getNewUser3()
+    expect(wrapper.vm.users.length).toEqual(2)
+
+    wrapper.vm.createNewUser(newUser3)
+    await flushPromises()
+
+    expect(mock.history.post.length).toEqual(1)
+    expect(mock.history.post[0].url).toEqual(usersPOSTUrl)
+    expect(mock.history.post[0].method).toEqual('post')
+    expect(JSON.parse(mock.history.post[0].data)).toEqual(newUser3) // note sure if this is able to work
+
+    // check if props were set via side effects
+    expect(wrapper.vm.messageToDisplay).toMatch('ERROR! Unable to save user data!')
+    expect(wrapper.vm.messageType).toMatch('Error')
+
+    // check that the component users data was not changed
+    expect(wrapper.vm.users.length).toEqual(2)
+
+  })
+})
+

@@ -1288,3 +1288,17 @@ The documentation on that says:
 > flushPromises call as well.
 
 Source: https://test-utils.vuejs.org/api/#flushpromises
+
+### Creating a POST request
+
+The `createNewUser` method in `AppContent` was extended to include a POST call
+using Axios. Afterwards, the `users` prop was adjusted to the API call.
+
+In reality, we would never include the ID upon creation but would leave that for the backend and
+adjust our JS data accordingly.
+
+The API responds with the exact data which was sent to it. That's why we got out of the woods in this tutorial.
+We used our previously created banner to additionally display the status of the API call. 
+
+The tests were mostly similar to the previous two chapters. In this chapter, the post call for th API 
+was additionally configured.
