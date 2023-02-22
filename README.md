@@ -1139,3 +1139,152 @@ axios.get(url)
 ```
 Interestingly the `async` keyword was necessary to make the code work.
 
+### The Banner Component
+
+This will recap many topics previously touched.
+
+#### Props
+The data on which the banner is based is the result of the HTTP request to the remote API.
+Since the call to the API takes place in `AppContent`, it makes sense to define the data there.
+
+Since it's going to be used in a child component the way to go is `props`
+In the parent component the constants are marked reactive using `ref`.
+```js
+const messageToDisplay = ref('')
+const messageType = ref('info')
+```
+In the child component the props are defined using `defineProps`:
+Implicitly, they are marked as not required.
+```js
+const props = defineProps({
+    bannerMessage: String,
+    bannerType: String
+})
+```
+
+#### Emits
+Emits are a way to send data or a signal from the child to the parent component.
+In our case, the Banner component will host a button to clear the message with click.
+Signal will be emitted to the parent component which can take care of mounting it.
+
+The emit is declared in the child component.
+```js
+const emit = defineEmits(['clearBanner'])
+```
+
+It is then hooked to the HTML element via the  callback which will formally emit the signal:
+```js
+<script setup>
+    //...
+const clearBannerMessage = () =>  {
+    emit('clearBanner')
+}
+</setup>
+<template>
+    ...
+<span v-on:click="clearBannerMessage">Clear</span>
+</template>
+```
+
+A listener is placed during the usage of the `Banner` component in the parent:
+
+```js
+<Banner v-on:clearBanner="clearMessage"></Banner>
+```
+
+If the `clearBanner` event is emitted from the `Banner` component, the `clearMessage` callback
+will be triggered:
+```js
+const clearMessage = () => {
+  messageToDisplay.value = ''
+  messageType.value = 'Info'
+}
+```
+The development was shortcut by one variable: the e.g. `showBanner` variable of boolean type.
+This was done by connecting the `bannerMessage` called property in the `Banner` component
+with the `div` element containing most of the banner.
+```html
+<div v-show="bannerMessage">
+    <!-- -->
+</div>
+```
+> An emtpy string in JavaScript evaluates to `false`
+> 
+#### Computed Property
+The background color of the Banner was designed to match the status of the
+HTTP request result. This means that it at least switches it value once from default
+to success or error.
+
+A way to handle such a situation is a computed property. As the reactive data
+which is used in the method changes, the computed property is recomputed and so are
+elements depending on its value:
+
+```js
+import { computed } from  'vue'
+
+const bannerBackgroundColor = computed(() => {
+  if (props.bannerType === 'Error') {
+    return 'red'
+  } else if (props.bannerType === 'Success') {
+    return 'green'
+  } else {
+    return 'blue'
+  }
+})
+```
+This computed property is connected to the banner via `v-bind:style` directive set in the
+containing `div` element
+```js
+<div v-bind:style="{ 'background-color': bannerBackgroundColor }">
+</div>
+```
+
+#### Communicating the HTTP request Result via Side Effect
+
+The AppContent module contains the API query. It is extended by setting the 
+appropriate banner message and type via side effects:
+
+```JS
+onMounted(async () => {
+
+axios.get(url)
+   .then((response) => {
+       //...
+       messageType.value = 'Success'
+       messageToDisplay.value = '...' 
+       //...
+   })
+   .catch((error) => {
+       //...
+       messageType.value = 'Error'
+       messageToDisplay.value = '...'
+       //...
+   })
+})
+```
+
+#### refactoring ideas
+
+The strings for the banner message, color and type could be defined in module
+and exported within an object.
+That would reduce the possibility for typos since it DRYs up the strings. I'm
+especially thingking about the test methods.
+
+Defining those strings in a module would also reduce maintenance burden and enable
+better visibility of the usage in the IDE.
+
+#### testing error cases
+
+`flushPromises` was used to await the effects of the error handling promis.
+The documentation on that says:
+
+> Why not just await button.trigger() ?
+>As explained above, there is a difference between the time it takes for Vue to 
+> update its components, and the time it takes for a Promise, like the 
+> one from axios to resolve.
+
+> A nice rule to follow is to always await on mutations like trigger or setProps.
+> If your code relies on something async, like calling axios, add an await to the 
+> flushPromises call as well.
+
+Source: https://test-utils.vuejs.org/api/#flushpromises

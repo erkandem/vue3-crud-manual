@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { shallowMount } from '@vue/test-utils'
+import { flushPromises, shallowMount } from '@vue/test-utils'
 import axios from 'axios'
 import MockAdapter from 'axios-mock-adapter'
 import AppContent from '@/components/AppContent.vue'
@@ -56,6 +56,10 @@ describe('AppContent.vue Test with a successful HTTP GET method', () => {
     expect(wrapper.vm.users[1].name).toMatch('Ervin Howell')
     expect(wrapper.vm.users[1].username).toMatch('Antonette')
     expect(wrapper.vm.users[1].email).toMatch('Shanna@melissa.tv')
+    // inspect side effect of changing banner status
+    expect(wrapper.vm.messageToDisplay).toMatch('SUCCESS! Loaded user data!')
+    expect(wrapper.vm.messageType).toMatch('Success')
+
   })
 })
 
@@ -65,7 +69,7 @@ describe('AppContent.vue after a failed HTTP GET request',() => {
     mock.reset();
     wrapper.unmount()
   })
-  it('does not have users data if the request times out', () => {
+  it('does not have users data if the request times out', async () => {
     // we need to configure the mock before we mount the component
     // because we expect a request to be run after the app is mounted.
     // Configuring the mock after `shallowMount` would miss the e.g.
@@ -74,21 +78,29 @@ describe('AppContent.vue after a failed HTTP GET request',() => {
     mock.onGet(usersUrl).timeout()
 
     wrapper = shallowMount(AppContent)
+    await flushPromises()
 
     expect(mock.history.get.length).toBe(1);
     expect(mock.history.get[0].url).toMatch(usersUrl)
     expect(mock.history.get[0].method).toMatch('get')
     expect(wrapper.vm.users.length).toEqual(0)
+    // inspect side effect of changing banner status
+    expect(wrapper.vm.messageToDisplay).toMatch('ERROR! Unable to load user data!')
+    expect(wrapper.vm.messageType).toMatch('Error')
+
   })
 
-    it('loads no user data when the HTTP GET request returned a 404', () => {
+    it('loads no user data when the HTTP GET request returned a 404', async () => {
     mock.onGet(usersUrl).reply(404)
 
     wrapper = shallowMount(AppContent)
+    await flushPromises()
 
     expect(mock.history.get.length).toBe(1);
     expect(mock.history.get[0].url).toMatch(usersUrl)
     expect(mock.history.get[0].method).toMatch('get')
     expect(wrapper.vm.users.length).toEqual(0)
+    expect(wrapper.vm.messageToDisplay).toMatch('ERROR! Unable to load user data!')
+    expect(wrapper.vm.messageType).toMatch('Error')
   })
 })
