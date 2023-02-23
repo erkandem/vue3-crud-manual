@@ -50,6 +50,26 @@ const createNewUser = (user) => {
     }
 }
 
+const deleteUser = (user) => {
+    // validation step
+    /// ...
+    const userIndex = users.value.indexOf(user)
+
+    axios.delete(usersUrl + '/' + user.id)
+        .then((response) => {
+            messageType.value = 'Success'
+            messageToDisplay.value = `SUCCESS! User #${user.id} was deleted!`
+            users.value.splice(userIndex, 1)
+        })
+        .catch((error) => {
+            messageType.value = 'Error'
+            messageToDisplay.value = 'ERROR! Unable to delete user #' + user.id + '!'
+        })
+        .finally((response) => {
+            console.log('HTTP DELETE Finished!')
+        })
+}
+
 onMounted(
     async () => {
         axios.get(
@@ -70,7 +90,7 @@ onMounted(
             }
         ).finally(
             () => {
-                console.log('Possibility to do clean up')
+                console.log('HTTP GET Users Finished!')
             }
         );
     }
@@ -86,7 +106,7 @@ const clearMessage = () => {
         <Banner v-bind:bannerMessage="messageToDisplay" v-bind:bannerType="messageType" v-on:clearBanner="clearMessage"></Banner>
         <AddNewUser v-on:createUser="createNewUser"></AddNewUser>
         <h1>{{ message }}</h1>
-        <ListUsers v-bind:users="users"></ListUsers>
+        <ListUsers v-bind:users="users" v-on:deleteUser="deleteUser"></ListUsers>
     </main>
 </template>
 

@@ -1263,8 +1263,9 @@ axios.get(url)
 })
 ```
 
-#### refactoring ideas
+#### Refactoring Ideas
 
+TODO
 The strings for the banner message, color and type could be defined in module
 and exported within an object.
 That would reduce the possibility for typos since it DRYs up the strings. I'm
@@ -1273,7 +1274,7 @@ especially thingking about the test methods.
 Defining those strings in a module would also reduce maintenance burden and enable
 better visibility of the usage in the IDE.
 
-#### testing error cases
+#### Testing Error Cases
 
 `flushPromises` was used to await the effects of the error handling promis.
 The documentation on that says:
@@ -1302,3 +1303,75 @@ We used our previously created banner to additionally display the status of the 
 
 The tests were mostly similar to the previous two chapters. In this chapter, the post call for th API 
 was additionally configured.
+
+
+### Delete Data via HTTP
+A button was added to each row of the html table.
+The buttons were hooked up to trigger the `deleteUserCallback` callback.
+```js
+<button v-on:click="deleteUserCallback(user)">Delete</button>
+```
+
+Of course, that event needed to be declared fist in the setup part:
+```js
+// ListUsers.vue
+const emit = defineEmits(['deleteUser'])
+```
+
+The `deleteUserCallback` then emitted the signal to the parent component
+```js
+const deleteUserCallback = (user) => {
+  emit('deleteUser', user)
+}
+```
+
+The signal was listened to on the parent component and triggered the callback with
+the same name as the event:
+
+```js
+// AppContent.vue
+<ListUsers v-on:deleteUser="deleteUser"}
+```
+
+The `deleteUser` callback then did the API call using the axios library.
+In this case, all data of the user was sent to endpoint.
+However, in reality the endpoint, request data and response data would
+depend on the used API.
+
+In this chapter I utilized the template string of JS to compose the banner message.
+The URL could have been rendered in a similar way:
+
+```js
+axios.delete(`https://something.com/endpoint/${user.id}`)
+//...
+```
+As part of the success method, the `users` array needed to be adjusted to 
+reflect the deletion of the user.
+
+First we needed to identify the index of the specific user in our current array:
+```js
+const indexOfUserToDelete = users.value.indexOf(userObject)
+```
+Then, we needed to remove the user from the array:
+```js
+users.value.splice(indexOfUserToDelete, 1)
+```
+A JS basic which was used in this part:
+```JS
+> const list = [{id: 0}, {id: 1}, {id: 2}]
+> const removedElement = list.splice(1, 1)
+> list
+ [{id: 0},  {id: 2}]
+> removedElement
+{id: 1}
+```
+
+TODO
+Instead, I think I would prefer to do a GET request instead and just reload a clean
+version of the data.
+
+The tests showed the extension on the mock to cover a successful and failing `DELETE` request.
+Some refactoring was done.
+
+TODO
+I would go a step further and write a test utils module.

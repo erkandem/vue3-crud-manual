@@ -2,21 +2,36 @@
 const props = defineProps({
         users: {type: Array, required: true}
     })
+const emit = defineEmits(['deleteUser'])
+
+const deleteUserCallback = (user) => {
+    emit('deleteUser',
+        {
+            id: user.id,
+            name: user.name,
+            username: user.username,
+            email: user.email
+        }
+    )
+}
 </script>
 
 <template>
 <table>
     <tr>
-        <th>Id</th>
+        <th>User ID</th>
         <th>Name</th>
         <th>Username</th>
         <th>Email</th>
+        <th>Actions</th>
     </tr>
     <tr v-for="user in users" v-bind:key="user.id">
         <td>{{ user.id }}</td>
         <td>{{ user.name }}</td>
         <td>{{ user.username }}</td>
         <td>{{ user.email }}</td>
+        <td><button v-on:click="deleteUserCallback(user)">Delete</button></td>
+
     </tr>
 </table>
 </template>
@@ -42,5 +57,18 @@ tr:nth-child(even) {
 }
 tr:nth-child(odd) {
       background-color: #CDCDCD40;
+}
+button {
+  background-color: #99D3Df;
+  padding: 4px;
+  border-radius: 4px;
+  font-size: 0.8em;
+  text-align: center;
+  border: 1px solid black;
+}
+
+button:hover {
+  background-color: #88BBD6;
+  cursor: pointer;
 }
 </style>
