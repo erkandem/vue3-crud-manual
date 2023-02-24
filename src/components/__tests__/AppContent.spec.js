@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { flushPromises, shallowMount } from '@vue/test-utils'
+import {describe, it, expect, beforeEach, afterEach} from 'vitest'
+import {flushPromises, shallowMount} from '@vue/test-utils'
 import axios from 'axios'
 import MockAdapter from 'axios-mock-adapter'
 import AppContent from '@/components/AppContent.vue'
@@ -18,44 +18,63 @@ const getNewUser3 = () => {
     email: 'patrick@email.com'
   }
 }
+const getUpdateUser = () => {
+  return {
+    id: 1,
+    name: 'Patrick',
+    username: 'patrick456',
+    email: 'patrick@email.com'
+  }
+}
+
+const getSampleUser1 = () => {
+  return {
+    id: 1,
+    name: 'Leanne Graham',
+    username: 'Bret',
+    email: 'Sincere@april.biz'
+  }
+}
+
+const getSampleUser2 = () => {
+  return {
+    id: 2,
+    name: 'Ervin Howell',
+    username: 'Antonette',
+    email: 'Shanna@melissa.tv'
+  }
+}
+
+const getSampleUsers = () => {
+  return [getSampleUser1(), getSampleUser2()]
+
+}
 describe('AppContent.vue Test with a successful HTTP calls', () => {
   let wrapper = null
   beforeEach(() => {
     mock.onGet(
-        usersGETUrl
+      usersGETUrl
     ).reply(
       200,
-      [
-        {
-          id: 1,
-          name: 'Leanne Graham',
-          username: 'Bret',
-          email: 'Sincere@april.biz'
-        },
-        {
-          id: 2,
-          name: 'Ervin Howell',
-          username: 'Antonette',
-          email: 'Shanna@melissa.tv'
-        }
-      ]
+      getSampleUsers()
     )
     mock.onPost(
-        usersPOSTUrl
+      usersPOSTUrl
     ).reply(
-        201,
-        [
+      201,
+      [
         getNewUser3()
-        ]);
-      mock.onDelete("https://jsonplaceholder.typicode.com/users/2").reply(200, [
-    {
-      id: 2
-    }
-  ])
-  wrapper = shallowMount(AppContent)
+      ]);
+    mock.onDelete("https://jsonplaceholder.typicode.com/users/2").reply(200, [
+      {
+        id: 2
+      }
+    ])
+    mock.onPut("https://jsonplaceholder.typicode.com/users/1").reply(200, [])
+    wrapper = shallowMount(AppContent)
   })
 
-  afterEach(() =>{
+  afterEach(() => {
     mock.reset();
     wrapper.unmount()
   })
@@ -110,10 +129,10 @@ describe('AppContent.vue Test with a successful HTTP calls', () => {
 
   it('deletes the user #2 data', async () => {
     let deleteUser2 = {
-        id: 2,
-        name: 'Ervin Howell',
-        username: 'Antonette',
-        email: 'Shanna@melissa.tv'
+      id: 2,
+      name: 'Ervin Howell',
+      username: 'Antonette',
+      email: 'Shanna@melissa.tv'
     }
     // our AppContent component is going to call the API.
     // We mocked it in the `beforeEach` above to return 2 users
@@ -133,7 +152,37 @@ describe('AppContent.vue Test with a successful HTTP calls', () => {
     expect(wrapper.vm.messageType).toMatch('Success')
 
   })
+  it('updates the data for user #1', async () => {
+    // set the input data for the user to update
+    const updateUser = getUpdateUser()
+    const user2 = getSampleUser2()
+    expect(wrapper.vm.users[0].name).toMatch('Leanne Graham')
+    expect(wrapper.vm.users[0].username).toMatch('Bret')
+    expect(wrapper.vm.users[0].email).toMatch('Sincere@april.biz')
 
+    wrapper.vm.updateUser(updateUser)
+    await flushPromises()
+
+    // Check that one call was made to axios.put()
+    expect(mock.history.put.length).toBe(1);
+    expect(mock.history.put[0].url).toMatch('https://jsonplaceholder.typicode.com/users/1')
+    expect(mock.history.put[0].method).toMatch('put')
+    expect(JSON.parse(mock.history.put[0].data)).toEqual(updateUser) // note sure if this is able to work
+
+    // Check that the user data is properly set
+    expect(wrapper.vm.users.length).toEqual(2)
+    expect(wrapper.vm.users[0].name).toMatch(updateUser.name)
+    expect(wrapper.vm.users[0].username).toMatch(updateUser.username)
+    expect(wrapper.vm.users[0].email).toMatch(updateUser.email)
+    // ensure the second user wasn't modified
+    expect(wrapper.vm.users[1].name).toMatch(user2.name)
+    expect(wrapper.vm.users[1].username).toMatch(user2.username)
+    expect(wrapper.vm.users[1].email).toMatch(user2.email)
+
+    // check that the banner message indicates success
+    expect(wrapper.vm.messageType).toMatch('Success')
+    expect(wrapper.vm.messageToDisplay).toMatch(`SUCCESS! User #${updateUser.id} was updated!`)
+  })
 })
 
 describe('AppContent.vue after a failed HTTP GET request', () => {
@@ -163,7 +212,7 @@ describe('AppContent.vue after a failed HTTP GET request', () => {
 
   })
 
-    it('loads no user data when the HTTP GET request returned a 404', async () => {
+  it('loads no user data when the HTTP GET request returned a 404', async () => {
     mock.onGet(usersGETUrl).reply(404)
 
     wrapper = shallowMount(AppContent)
@@ -203,11 +252,11 @@ describe('AppContent.vue Test with Successful HTTP GET, Failed HTTP POST and fai
     // NOTE: arguments for reply are (status, data, headers)
     mock.onPost(usersPOSTUrl).reply(404)
 
-  mock.onDelete(
-    "https://jsonplaceholder.typicode.com/users/2"
-  ).reply(
-    404,
-  )
+    mock.onDelete(
+      "https://jsonplaceholder.typicode.com/users/2"
+    ).reply(
+      404,
+    )
     // render the component
     wrapper = shallowMount(AppContent)
   })

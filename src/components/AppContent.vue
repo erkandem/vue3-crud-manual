@@ -64,10 +64,40 @@ const deleteUser = (user) => {
         .catch((error) => {
             messageType.value = 'Error'
             messageToDisplay.value = 'ERROR! Unable to delete user #' + user.id + '!'
+            console.log(String(error))
         })
         .finally((response) => {
             console.log('HTTP DELETE Finished!')
         })
+}
+
+const updateUser = (user) => {
+    const userIndex = users.value.findIndex((currentUser) => {
+        if (currentUser.id === user.id) {
+            return true
+        }
+    })
+
+    axios.put(`${usersUrl}/${user.id}`, user)
+        .then((response) => {
+            messageType.value = 'Success'
+            messageToDisplay.value = ` 'SUCCESS! User #${user.id} was updated!'`
+            // Update the user in the local array of users
+            // Big no, no ? Would do a GET or use the returned data at least
+            // to modify the in-app data.
+              users.value[userIndex].name = user.name
+              users.value[userIndex].username = user.username
+              users.value[userIndex].email = user.email
+        })
+        .catch((error) => {
+            messageType.value = 'Error'
+            messageToDisplay.value = `ERROR! Unable to update user #${user.id}!`
+            console.log(String(error))
+        })
+        .finally((response) => {
+      // always executed
+      console.log('HTTP PUT Finished!')
+    })
 }
 
 onMounted(
@@ -77,7 +107,6 @@ onMounted(
         ).then(
             (response) => {
                 users.value = response.data
-                console.log('GET successful: ' + response.request.url)
                 largestUserIndex.value = users.value.length
                 messageType.value = 'Success'
                 messageToDisplay.value = 'SUCCESS! Loaded user data!'
@@ -106,7 +135,11 @@ const clearMessage = () => {
         <Banner v-bind:bannerMessage="messageToDisplay" v-bind:bannerType="messageType" v-on:clearBanner="clearMessage"></Banner>
         <AddNewUser v-on:createUser="createNewUser"></AddNewUser>
         <h1>{{ message }}</h1>
-        <ListUsers v-bind:users="users" v-on:deleteUser="deleteUser"></ListUsers>
+        <ListUsers
+            v-bind:users="users"
+            v-on:deleteUser="deleteUser"
+            v-on:updateUser="updateUser"
+        ></ListUsers>
     </main>
 </template>
 

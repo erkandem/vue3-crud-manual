@@ -1375,3 +1375,38 @@ Some refactoring was done.
 
 TODO
 I would go a step further and write a test utils module.
+
+
+### Updating Data via HTTP PUT
+
+This was by far the most complex component of the course yet.
+
+#### Description
+We want to be able to edit a user entry in the table.
+1) We want an edit button next to delete button. (It's not a good idea since to place edit right next to delete without space from UX perspective)
+2) When the edit button is click we want a modal to open.
+3) The modal should have fields to edit `name`, `username` and `email`.
+4) These fields should be initialized with the data of the user whose edit button was clicked.
+   (i.e. user data in the same row as clicked edit button)
+5) The modal should have a submit and a cancel button.
+6) If the user clicks anywhere else outside the modal, it's interpreted as cancel.
+7) The cancel button should discard all changes.
+8) The submit button should 
+   a) send a query to the backend to update the data
+   b) show the result of the update request to the backend  
+   c) update the state of the user in the app accordingly
+
+
+#### Other Lessons
+ - `Array.findIndex(callable -> bool)` to get the index of the first object matching a filter function 
+ - `Object.keys({a: 0, b: 1})` to get the names of the properties of an object
+ - One attribute="value" per line style of coding to make code changes easier to figure out
+ - Inspect the outgoing request data in e.g. POST and PUT queries to match expectations. 
+ - `expect(editButtons[1].isVisible()).toBe(true)` syntax to be 
+ - `expect(wrapper.vm.showEditModal).not.toBeTruthy()` syntax to check that sth evaluates to `false`
+ - [expect](https://vitest.dev/api/expect.html#expect) has very rich methods and compares to the django unit tests (with other names) 
+ - events where reraised in an intermediate component (e.g. updateUser)
+ - `v-if` was used to clear the state of the modal
+ - `v-on:click.stop=""` was used to block the registration of click events on the modal
+ - dynamic assignment of HTML ID Tag (`v-bind:id="`deleteButton-${user.id}`"`)
+ - 
