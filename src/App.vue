@@ -1,5 +1,5 @@
 <script setup>
-    import {ref} from '@vue/reactivity';
+    import { ref } from 'vue';
 
     // @ is an alias for the src directory
     import AppHeader from '@/components/AppHeader.vue'

@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from '@vue/reactivity'
+import { ref } from 'vue'
 
 const emit = defineEmits(['createUser'])
 const user = ref({

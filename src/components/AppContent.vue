@@ -1,6 +1,6 @@
 <script setup>
 import axios from 'axios'
-import {ref} from '@vue/reactivity'
+import {ref} from 'vue'
 import {onMounted} from 'vue'
 import ListUsers from './ListUsers.vue'
 import AddNewUser from './AddNewUser.vue'
@@ -28,7 +28,7 @@ const createNewUser = (user) => {
         }
         // Add the new user to the database via a HTTP POST call
         axios.post(usersUrl, newUser)
-            .then((response) => {
+            .then((response) => {  // eslint-disable-line no-unused-vars
                 // handle success
                 messageType.value = 'Success'
                 messageToDisplay.value = 'SUCCESS! User data was saved!'
@@ -43,7 +43,7 @@ const createNewUser = (user) => {
                 messageToDisplay.value = 'ERROR! Unable to save user data!'
                 console.log(String(error))
             })
-            .finally((response) => {
+            .finally((response) => {  // eslint-disable-line no-unused-vars
                 // always executed
                 console.log('HTTP POST Finished!')
             })
@@ -56,7 +56,7 @@ const deleteUser = (user) => {
     const userIndex = users.value.indexOf(user)
 
     axios.delete(usersUrl + '/' + user.id)
-        .then((response) => {
+        .then((response) => {  // eslint-disable-line no-unused-vars
             messageType.value = 'Success'
             messageToDisplay.value = `SUCCESS! User #${user.id} was deleted!`
             users.value.splice(userIndex, 1)
@@ -66,7 +66,7 @@ const deleteUser = (user) => {
             messageToDisplay.value = 'ERROR! Unable to delete user #' + user.id + '!'
             console.log(String(error))
         })
-        .finally((response) => {
+        .finally((response) => {  // eslint-disable-line no-unused-vars
             console.log('HTTP DELETE Finished!')
         })
 }
@@ -79,7 +79,7 @@ const updateUser = (user) => {
     })
 
     axios.put(`${usersUrl}/${user.id}`, user)
-        .then((response) => {
+        .then((response) => {  // eslint-disable-line no-unused-vars
             messageType.value = 'Success'
             messageToDisplay.value = ` 'SUCCESS! User #${user.id} was updated!'`
             // Update the user in the local array of users
@@ -94,7 +94,7 @@ const updateUser = (user) => {
             messageToDisplay.value = `ERROR! Unable to update user #${user.id}!`
             console.log(String(error))
         })
-        .finally((response) => {
+        .finally((response) => {  // eslint-disable-line no-unused-vars
       // always executed
       console.log('HTTP PUT Finished!')
     })
@@ -112,7 +112,7 @@ onMounted(
                 messageToDisplay.value = 'SUCCESS! Loaded user data!'
             }
         ).catch(
-            (error) => {
+            (error) => {  // eslint-disable-line no-unused-vars
                 console.log('An error occurred')
                 messageType.value = 'Error'
                 messageToDisplay.value = 'ERROR! Unable to load user data!'

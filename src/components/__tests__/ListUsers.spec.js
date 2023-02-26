@@ -85,8 +85,6 @@ describe('ListUsers.vue Test', () => {
   })
 
   it('emits an event when a user is deleted', async () => {
-    const users = getSampleUsers()
-
     await wrapper.find('button').trigger('click')
 
     const emittedEvent = wrapper.emitted('deleteUser')

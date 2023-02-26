@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import EditUserModal from './EditUserModal.vue'
 
-const props = defineProps({
+defineProps({
         users: {type: Array, required: true}
     })
 

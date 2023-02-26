@@ -1,4 +1,4 @@
-<script setup>
+<script setup> // eslint-disable-line vue/multi-word-component-names
 import { computed } from 'vue'
 
 const props = defineProps({
