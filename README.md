@@ -1409,4 +1409,59 @@ We want to be able to edit a user entry in the table.
  - `v-if` was used to clear the state of the modal
  - `v-on:click.stop=""` was used to block the registration of click events on the modal
  - dynamic assignment of HTML ID Tag (`v-bind:id="`deleteButton-${user.id}`"`)
- - 
+
+## Part 4 - Pinia and Vue Router and Deployment
+
+### Pinia I
+
+`Pinia` is a `state management` tool, which describes the centralized
+management of globally (i.e. used application wide) used data.
+
+ - `Store`: describes the storage location of our data
+ - `State`: describes the global data in our store(s)
+ - `Getters`: describes methods for read access to data within a store
+ - `Actions`: describes methods for write access to data within a store
+
+#### Installing
+
+```sh
+npm install pinia
+```
+And its testing tool
+```sh
+npm install @pinia/testing --save-dev
+```
+
+#### Usage within Vue
+
+It's used as a `plugin` in our application
+```js
+// src/main.js
+import { createApp } from 'vue'
+import { createPinia } from 'pinia'
+import App from './App.vue'
+
+import './assets/main.css'
+
+const pinia = createPinia()
+const app = createApp(App)
+
+app.use(pinia)
+app.mount('#app')
+```
+
+####  Setting Up a Store
+
+We created a new dir in the `src` dir called `store`
+and created a new JS module.
+
+In this case the banner.js name was chosen. 
+```js
+import { defineStore } from 'pinia'
+
+export const useBannerStore = defineStore("banner", {
+    state: () => ({}),
+    getters: {},
+    actions: {}
+})
+```
