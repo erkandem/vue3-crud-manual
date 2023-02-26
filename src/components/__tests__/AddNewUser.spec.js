@@ -49,7 +49,6 @@ describe('AddNewUser.vue Test', () => {
       expect(nameInput.element.value).toBe('')
       expect(usernameInput.element.value).toBe('')
       expect(emailInput.element.value).toBe('')
-      console.log(wrapper.emitted())
    })
   it('does not emit an event when a new user without data is added', async () => {
     await wrapper.find('button').trigger('click')

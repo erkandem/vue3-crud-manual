@@ -1,21 +1,16 @@
 <script setup> // eslint-disable-line vue/multi-word-component-names
 import { computed } from 'vue'
+import  { useBannerStore } from '@/stores/banner'
 
-const props = defineProps({
-    bannerMessage: String,
-    bannerType: String
-})
-
-// sending a message/data/signal from the child to the parent component
-const emit = defineEmits(['clearBanner'])
+const store = useBannerStore()
 
 // -------------------
 // Computed Properties
 // -------------------
 const bannerBackgroundColor = computed(() => {
-    if (props.bannerType === 'Error') {
+    if (store.bannerType === 'Error') {
         return 'red'
-    } else if (props.bannerType === 'Success') {
+    } else if (store.bannerType === 'Success') {
         return 'green'
     } else {
         return 'blue'
@@ -26,15 +21,15 @@ const bannerBackgroundColor = computed(() => {
 // Methods
 // -------
 const clearBannerMessage = () => {
-    emit('clearBanner')
+    store.setBannerData('', 'Info')
 }
 
 </script>
 
 <template>
-    <div v-show="bannerMessage" v-bind:style="{ 'background-color': bannerBackgroundColor }">
+    <div v-show="store.getBannerMessage" v-bind:style="{ 'background-color': bannerBackgroundColor }">
         <span id="errorMessageClear" v-on:click="clearBannerMessage">Clear</span>
-        <p> {{ bannerMessage }}</p>
+        <p> {{ store.getBannerMessage }}</p>
     </div>
 </template>
 

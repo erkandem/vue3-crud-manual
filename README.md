@@ -1465,3 +1465,116 @@ export const useBannerStore = defineStore("banner", {
     actions: {}
 })
 ```
+### Pinia II
+
+This chapter showed how the props `bannerMessage` and `bannerType`
+were refactored to be stored and managed using Pinia.
+
+#### TDD of the Data Store
+
+The data is stored in properties of the store object.
+Two properties with the same name as the props were created in the `state` property
+of the bannerStore Pinia object and initialized.
+
+```js
+//...
+    state: () => ({
+        bannerMessage: '',
+        bannerType: 'Info'
+    })
+//...
+```
+
+Similarly, the getters and actions objects were populated with methods.
+In the case of the `getters` property, the methods return the value of 
+the property in the `state` object. The `state` object is injected as an
+argument to every method in the `getters` object.
+
+```js
+getters: {
+  getBannerMessage: (state) => { return state.bannerMessage }
+  //...
+}
+```
+The `actions` object methods are a bit different.
+They take the new data as arguments.
+After some modification/verification or other steps the existing data can
+be overwritten using the `this` keyword.
+```js 
+// ..
+actions: {
+  setBannerData(message, type) {
+    this.bannerMessage = message
+    this.bannerType = type
+  }
+// ..
+}
+```
+
+#### Refactoring the Tests and Application Code
+
+Since the props are not supposed to be used anymore their inspection
+hast to be refactored towards checking the value of the properties in the 
+respective store.
+
+That required some changes to the test setup.
+1) the pinia mocking library and the store was imported
+2) the `mount` and `shallowMount` calls were advanced by
+  - adding the fake pinia as plugin
+  - assigning a ["spy" function](https://vitest.dev/api/vi.html#vi-fn) on it which works like magic mock in python
+  - defining an initial state for the values of the stored properties if needed
+  - and providing above as a factory, such that the initial state could be set
+    within the test
+
+```js
+//describe(...
+  const factory = (
+    initialBannerMessage = '',
+    initialBannerType = 'Info'
+  ) => {
+    const wrapper = shallowMount(Banner, {
+        global: {
+          plugins: [
+            createTestingPinia({
+              createSpy: vi.fn,
+              initialState: {
+                banner: {
+                  bannerMessage: initialBannerMessage,
+                  bannerType: initialBannerType
+                }
+              }
+            })
+          ]
+        }
+      }
+    )
+    const bannerStore  = useBannerStore()
+    return { wrapper, bannerStore }
+  }
+```
+createSpy docs: https://pinia.vuejs.org/cookbook/testing.html#specifying-the-createspy-function
+
+Assertions like these, which used the props
+```js
+    expect(wrapper.vm.messageToDisplay).toMatch('SUCCESS! Loaded user data!')
+    expect(wrapper.vm.messageType).toMatch('Success')
+```
+were refactored to be based on the `bannerStore`
+```js
+    expect(bannerStore.setBannerData).toHaveBeenCalledTimes(1)
+    expect(bannerStore.setBannerData).toHaveBeenLastCalledWith('', 'Info')
+```
+
+2 New cool assertions thanks to the usage of the spy function:
+ - toHaveBeenCalledTimes(integer) https://vitest.dev/api/expect.html#tohavebeencalledtimes
+ - toHaveBeenLastCalledWith(arg, ...) https://vitest.dev/api/expect.html#tohavebeencalledwith
+
+#### Anything else
+I found that I sent the delete signal with smaller version of the user object.
+In the actual delete method `users.indexOf(user)` was used to get the index.
+However, `indexOf` expect an exact match, not a partial, at least for objects.
+
+As a result I always got the index -1, which of course is wrong and indicates an error.
+Funny enough it still worked to delete one user, but not the one a human user would have wanted to.
+
+I fixed it by sending the complete `user` object as part of the call to `emit`.

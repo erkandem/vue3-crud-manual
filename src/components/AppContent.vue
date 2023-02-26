@@ -1,16 +1,17 @@
 <script setup>
 import axios from 'axios'
-import {ref} from 'vue'
-import {onMounted} from 'vue'
+import { ref } from 'vue'
+import { onMounted } from 'vue'
 import ListUsers from './ListUsers.vue'
 import AddNewUser from './AddNewUser.vue'
 import Banner from './Banner.vue'
+import { useBannerStore } from '@/stores/banner'
+
+const store = useBannerStore()
 
 const usersUrl = 'https://jsonplaceholder.typicode.com/users'
 const message = ref('List of Users:')
 const users = ref([])
-const messageToDisplay = ref('')
-const messageType = ref('info')
 const largestUserIndex = ref(0)
 
 const createNewUser = (user) => {
@@ -30,8 +31,7 @@ const createNewUser = (user) => {
         axios.post(usersUrl, newUser)
             .then((response) => {  // eslint-disable-line no-unused-vars
                 // handle success
-                messageType.value = 'Success'
-                messageToDisplay.value = 'SUCCESS! User data was saved!'
+                store.setBannerData('SUCCESS! User data was saved!', 'Success')
                 // Add the user to the local array of users
                 users.value.push(newUser) // actually, we would inspect the returned object and modify our component data based on the that
                 // Increase the largest index used in the database
@@ -39,8 +39,7 @@ const createNewUser = (user) => {
             })
             .catch((error) => {
                 // handle error
-                messageType.value = 'Error'
-                messageToDisplay.value = 'ERROR! Unable to save user data!'
+                store.setBannerData('ERROR! Unable to save user data!', 'Error')
                 console.log(String(error))
             })
             .finally((response) => {  // eslint-disable-line no-unused-vars
@@ -51,19 +50,14 @@ const createNewUser = (user) => {
 }
 
 const deleteUser = (user) => {
-    // validation step
-    /// ...
     const userIndex = users.value.indexOf(user)
-
     axios.delete(usersUrl + '/' + user.id)
         .then((response) => {  // eslint-disable-line no-unused-vars
-            messageType.value = 'Success'
-            messageToDisplay.value = `SUCCESS! User #${user.id} was deleted!`
+            store.setBannerData(`SUCCESS! User #${user.id} was deleted!`, 'Success')
             users.value.splice(userIndex, 1)
         })
         .catch((error) => {
-            messageType.value = 'Error'
-            messageToDisplay.value = 'ERROR! Unable to delete user #' + user.id + '!'
+            store.setBannerData(`ERROR! Unable to delete user #${user.id}!`, 'Error')
             console.log(String(error))
         })
         .finally((response) => {  // eslint-disable-line no-unused-vars
@@ -80,8 +74,7 @@ const updateUser = (user) => {
 
     axios.put(`${usersUrl}/${user.id}`, user)
         .then((response) => {  // eslint-disable-line no-unused-vars
-            messageType.value = 'Success'
-            messageToDisplay.value = ` 'SUCCESS! User #${user.id} was updated!'`
+            store.setBannerData(`SUCCESS! User #${user.id} was updated!`, 'Success')
             // Update the user in the local array of users
             // Big no, no ? Would do a GET or use the returned data at least
             // to modify the in-app data.
@@ -90,8 +83,7 @@ const updateUser = (user) => {
               users.value[userIndex].email = user.email
         })
         .catch((error) => {
-            messageType.value = 'Error'
-            messageToDisplay.value = `ERROR! Unable to update user #${user.id}!`
+            store.setBannerData(`ERROR! Unable to update user #${user.id}!`, 'Error')
             console.log(String(error))
         })
         .finally((response) => {  // eslint-disable-line no-unused-vars
@@ -108,14 +100,12 @@ onMounted(
             (response) => {
                 users.value = response.data
                 largestUserIndex.value = users.value.length
-                messageType.value = 'Success'
-                messageToDisplay.value = 'SUCCESS! Loaded user data!'
+                store.setBannerData('SUCCESS! Loaded user data!', 'Success')
             }
         ).catch(
             (error) => {  // eslint-disable-line no-unused-vars
                 console.log('An error occurred')
-                messageType.value = 'Error'
-                messageToDisplay.value = 'ERROR! Unable to load user data!'
+                store.setBannerData('ERROR! Unable to load user data!', 'Error')
             }
         ).finally(
             () => {
@@ -124,15 +114,12 @@ onMounted(
         );
     }
 )
-const clearMessage = () => {
-    messageToDisplay.value = ''
-    messageType.value = 'Info' // which is the default
-}
+
 </script>
 
 <template>
     <main>
-        <Banner v-bind:bannerMessage="messageToDisplay" v-bind:bannerType="messageType" v-on:clearBanner="clearMessage"></Banner>
+        <Banner></Banner>
         <AddNewUser v-on:createUser="createNewUser"></AddNewUser>
         <h1>{{ message }}</h1>
         <ListUsers

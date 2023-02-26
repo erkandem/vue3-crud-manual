@@ -1,12 +1,13 @@
-import {describe, it, expect, beforeEach, afterEach} from 'vitest'
+import {describe, it, expect, beforeEach, afterEach, vi} from 'vitest'
 import {flushPromises, shallowMount} from '@vue/test-utils'
 import axios from 'axios'
 import MockAdapter from 'axios-mock-adapter'
 import AppContent from '@/components/AppContent.vue'
+import {useBannerStore} from '@/stores/banner'
+import {createTestingPinia} from '@pinia/testing'
 
 let mock = new MockAdapter(axios)
-const usersGETUrl = 'https://jsonplaceholder.typicode.com/users'
-const usersPOSTUrl = 'https://jsonplaceholder.typicode.com/users'
+const usersURL = 'https://jsonplaceholder.typicode.com/users'
 
 const getNewUser3 = () => {
   /* obviously, I should use a library to create random fake data like faker in python
@@ -18,6 +19,7 @@ const getNewUser3 = () => {
     email: 'patrick@email.com'
   }
 }
+
 const getUpdateUser = () => {
   return {
     id: 1,
@@ -49,29 +51,27 @@ const getSampleUsers = () => {
   return [getSampleUser1(), getSampleUser2()]
 
 }
+
 describe('AppContent.vue Test with a successful HTTP calls', () => {
   let wrapper = null
+  let bannerStore = null
+
   beforeEach(() => {
-    mock.onGet(
-      usersGETUrl
-    ).reply(
-      200,
-      getSampleUsers()
-    )
-    mock.onPost(
-      usersPOSTUrl
-    ).reply(
-      201,
-      [
-        getNewUser3()
-      ]);
-    mock.onDelete("https://jsonplaceholder.typicode.com/users/2").reply(200, [
-      {
-        id: 2
+    mock.onGet(usersURL).reply(200, getSampleUsers())
+    mock.onPost(usersURL).reply(201, [getNewUser3()])
+    mock.onDelete(usersURL + "/2").reply(200, [{id: 2}])
+    mock.onPut(usersURL + "/1").reply(200, [])
+
+    wrapper = shallowMount(AppContent, {
+      global: {
+        plugins: [
+          createTestingPinia({
+            createSpy: vi.fn
+          })
+        ]
       }
-    ])
-    mock.onPut("https://jsonplaceholder.typicode.com/users/1").reply(200, [])
-    wrapper = shallowMount(AppContent)
+    })
+    bannerStore = useBannerStore()
   })
 
   afterEach(() => {
@@ -88,7 +88,7 @@ describe('AppContent.vue Test with a successful HTTP calls', () => {
     expect(h1Items[0].text()).toMatch(expectedString)
     // inspect mock
     expect(mock.history.get.length).toBe(1)
-    expect(mock.history.get[0].url).toMatch(usersGETUrl)
+    expect(mock.history.get[0].url).toMatch(usersURL)
     expect(mock.history.get[0].method).toMatch('get')
     // inspect fetched data
     expect(wrapper.vm.users.length).toEqual(2)
@@ -98,9 +98,10 @@ describe('AppContent.vue Test with a successful HTTP calls', () => {
     expect(wrapper.vm.users[1].name).toMatch('Ervin Howell')
     expect(wrapper.vm.users[1].username).toMatch('Antonette')
     expect(wrapper.vm.users[1].email).toMatch('Shanna@melissa.tv')
-    // inspect side effect of changing banner status
-    expect(wrapper.vm.messageToDisplay).toMatch('SUCCESS! Loaded user data!')
-    expect(wrapper.vm.messageType).toMatch('Success')
+
+    // inspect side effect in the axios call in the onMounted
+    expect(bannerStore.setBannerData).toHaveBeenCalledTimes(1)
+    expect(bannerStore.setBannerData).toHaveBeenCalledWith("SUCCESS! Loaded user data!", "Success")
 
   })
 
@@ -113,7 +114,7 @@ describe('AppContent.vue Test with a successful HTTP calls', () => {
 
     // Check that one call was made to axios.post()
     expect(mock.history.post.length).toEqual(1)
-    expect(mock.history.post[0].url).toMatch(usersPOSTUrl)
+    expect(mock.history.post[0].url).toMatch(usersURL)
     expect(mock.history.post[0].method).toMatch('post')
     expect(JSON.parse(mock.history.post[0].data)).toEqual(newUser3)
 
@@ -123,8 +124,11 @@ describe('AppContent.vue Test with a successful HTTP calls', () => {
     expect(wrapper.vm.users[2].email).toMatch(newUser3.email)
 
     // check that the banner message indicates success
-    expect(wrapper.vm.messageType).toMatch('Success')
-    expect(wrapper.vm.messageToDisplay).toMatch('SUCCESS! User data was saved!')
+    expect(bannerStore.setBannerData).toHaveBeenCalledTimes(
+      1 // GET request result when component is mounted
+      + 1 // POST request is made
+    )
+    expect(bannerStore.setBannerData).toHaveBeenCalledWith("SUCCESS! User data was saved!", "Success")
   })
 
   it('deletes the user #2 data', async () => {
@@ -143,29 +147,29 @@ describe('AppContent.vue Test with a successful HTTP calls', () => {
 
     // Check that one call was made to axios.delete()
     expect(mock.history.delete.length).toBe(1)
-    expect(mock.history.delete[0].url).toMatch('https://jsonplaceholder.typicode.com/users/2')
+    expect(mock.history.delete[0].url).toMatch(usersURL + "/" + deleteUser2.id)
     expect(mock.history.delete[0].method).toMatch('delete')
     // Check that the user data is properly set
     expect(wrapper.vm.users.length).toEqual(1)
     // check that the banner message indicates success
-    expect(wrapper.vm.messageToDisplay).toMatch('SUCCESS! User #2 was deleted!')
-    expect(wrapper.vm.messageType).toMatch('Success')
-
+    expect(bannerStore.setBannerData).toHaveBeenCalledTimes(2)
+    expect(bannerStore.setBannerData).toHaveBeenCalledWith(`SUCCESS! User #${deleteUser2.id} was deleted!`, "Success")
   })
   it('updates the data for user #1', async () => {
     // set the input data for the user to update
+    const user1 = getSampleUser1()
     const updateUser = getUpdateUser()
     const user2 = getSampleUser2()
-    expect(wrapper.vm.users[0].name).toMatch('Leanne Graham')
-    expect(wrapper.vm.users[0].username).toMatch('Bret')
-    expect(wrapper.vm.users[0].email).toMatch('Sincere@april.biz')
+    expect(wrapper.vm.users[0].name).toMatch(user1.name)
+    expect(wrapper.vm.users[0].username).toMatch(user1.username)
+    expect(wrapper.vm.users[0].email).toMatch(user1.email)
 
     wrapper.vm.updateUser(updateUser)
     await flushPromises()
 
     // Check that one call was made to axios.put()
     expect(mock.history.put.length).toBe(1);
-    expect(mock.history.put[0].url).toMatch('https://jsonplaceholder.typicode.com/users/1')
+    expect(mock.history.put[0].url).toMatch(usersURL + '/1')
     expect(mock.history.put[0].method).toMatch('put')
     expect(JSON.parse(mock.history.put[0].data)).toEqual(updateUser) // note sure if this is able to work
 
@@ -180,13 +184,14 @@ describe('AppContent.vue Test with a successful HTTP calls', () => {
     expect(wrapper.vm.users[1].email).toMatch(user2.email)
 
     // check that the banner message indicates success
-    expect(wrapper.vm.messageType).toMatch('Success')
-    expect(wrapper.vm.messageToDisplay).toMatch(`SUCCESS! User #${updateUser.id} was updated!`)
+    expect(bannerStore.setBannerData).toHaveBeenCalledTimes(2)
+    expect(bannerStore.setBannerData).toHaveBeenCalledWith(`SUCCESS! User #${updateUser.id} was updated!`, "Success")
   })
 })
 
 describe('AppContent.vue after a failed HTTP GET request', () => {
   let wrapper = null
+  let bannerStore = null
   afterEach(() => {
     mock.reset();
     wrapper.unmount()
@@ -197,43 +202,61 @@ describe('AppContent.vue after a failed HTTP GET request', () => {
     // Configuring the mock after `shallowMount` would miss the e.g.
     // the onMount() lifecycle hook.
     // Why call data after mount? To decrease the time for the first render (i.e. UX)
-    mock.onGet(usersGETUrl).timeout()
-
-    wrapper = shallowMount(AppContent)
+    mock.onGet(usersURL).timeout()
+    wrapper = shallowMount(AppContent, {
+      global: {
+        plugins: [
+          createTestingPinia({
+            createSpy: vi.fn
+          })
+        ]
+      }
+    })
+    bannerStore = useBannerStore()
     await flushPromises()
 
     expect(mock.history.get.length).toBe(1);
-    expect(mock.history.get[0].url).toMatch(usersGETUrl)
+    expect(mock.history.get[0].url).toMatch(usersURL)
     expect(mock.history.get[0].method).toMatch('get')
     expect(wrapper.vm.users.length).toEqual(0)
     // inspect side effect of changing banner status
-    expect(wrapper.vm.messageToDisplay).toMatch('ERROR! Unable to load user data!')
-    expect(wrapper.vm.messageType).toMatch('Error')
-
+    expect(bannerStore.setBannerData).toHaveBeenCalledTimes(1)
+    expect(bannerStore.setBannerData).toHaveBeenCalledWith('ERROR! Unable to load user data!', "Error")
   })
 
   it('loads no user data when the HTTP GET request returned a 404', async () => {
-    mock.onGet(usersGETUrl).reply(404)
-
-    wrapper = shallowMount(AppContent)
+    mock.onGet(usersURL).reply(404)
+    wrapper = shallowMount(AppContent, {
+      global: {
+        plugins: [
+          createTestingPinia({
+            createSpy: vi.fn
+          })
+        ]
+      }
+    })
+    bannerStore = useBannerStore()
     await flushPromises()
 
     expect(mock.history.get.length).toBe(1);
-    expect(mock.history.get[0].url).toMatch(usersGETUrl)
+    expect(mock.history.get[0].url).toMatch(usersURL)
     expect(mock.history.get[0].method).toMatch('get')
     expect(wrapper.vm.users.length).toEqual(0)
-    expect(wrapper.vm.messageToDisplay).toMatch('ERROR! Unable to load user data!')
-    expect(wrapper.vm.messageType).toMatch('Error')
+
+    // check if store data was updated
+    expect(bannerStore.setBannerData).toHaveBeenCalledTimes(1)
+    expect(bannerStore.setBannerData).toHaveBeenCalledWith('ERROR! Unable to load user data!', "Error")
   })
 })
 
 describe('AppContent.vue Test with Successful HTTP GET, Failed HTTP POST and failed HTTP DELETE', () => {
   let wrapper = null
+  let bannerStore = null
 
   beforeEach(() => {
     // Mock any GET request to the specified URL
     // NOTE: arguments for reply are (status, data, headers)
-    mock.onGet(usersGETUrl).reply(200, [
+    mock.onGet(usersURL).reply(200, [
       {
         id: 1,
         name: 'Leanne Graham',
@@ -250,15 +273,18 @@ describe('AppContent.vue Test with Successful HTTP GET, Failed HTTP POST and fai
 
     // Mock any POST request to the specified URL
     // NOTE: arguments for reply are (status, data, headers)
-    mock.onPost(usersPOSTUrl).reply(404)
-
-    mock.onDelete(
-      "https://jsonplaceholder.typicode.com/users/2"
-    ).reply(
-      404,
-    )
-    // render the component
-    wrapper = shallowMount(AppContent)
+    mock.onPost(usersURL).reply(404)
+    mock.onDelete(usersURL + "/2").reply(404)
+    wrapper = shallowMount(AppContent, {
+      global: {
+        plugins: [
+          createTestingPinia({
+            createSpy: vi.fn
+          })
+        ]
+      }
+    })
+    bannerStore = useBannerStore()
   })
 
   afterEach(() => {
@@ -274,13 +300,13 @@ describe('AppContent.vue Test with Successful HTTP GET, Failed HTTP POST and fai
     await flushPromises()
 
     expect(mock.history.post.length).toEqual(1)
-    expect(mock.history.post[0].url).toEqual(usersPOSTUrl)
+    expect(mock.history.post[0].url).toEqual(usersURL)
     expect(mock.history.post[0].method).toEqual('post')
     expect(JSON.parse(mock.history.post[0].data)).toEqual(newUser3) // note sure if this is able to work
 
-    // check if props were set via side effects
-    expect(wrapper.vm.messageToDisplay).toMatch('ERROR! Unable to save user data!')
-    expect(wrapper.vm.messageType).toMatch('Error')
+    // check if store data was updated
+    expect(bannerStore.setBannerData).toHaveBeenCalledTimes(2)
+    expect(bannerStore.setBannerData).toHaveBeenCalledWith("ERROR! Unable to save user data!", "Error")
 
     // check that the component users data was not changed
     expect(wrapper.vm.users.length).toEqual(2)
@@ -301,15 +327,15 @@ describe('AppContent.vue Test with Successful HTTP GET, Failed HTTP POST and fai
 
     // Check that one call was made to axios.delete()
     expect(mock.history.delete.length).toBe(1);
-    expect(mock.history.delete[0].url).toMatch('https://jsonplaceholder.typicode.com/users/2')
+    expect(mock.history.delete[0].url).toMatch(usersURL + '/2')
     expect(mock.history.delete[0].method).toMatch('delete')
 
     // Check that the user data was not deleted
     expect(wrapper.vm.users.length).toEqual(2)
 
     // check that the banner message indicates failure
-    expect(wrapper.vm.messageType).toMatch('Error')
-    expect(wrapper.vm.messageToDisplay).toMatch('ERROR! Unable to delete user #2')
+    expect(bannerStore.setBannerData).toHaveBeenCalledTimes(2)
+    expect(bannerStore.setBannerData).toHaveBeenCalledWith(`ERROR! Unable to delete user #${deleteUser2.id}!`, "Error")
   })
 })
 

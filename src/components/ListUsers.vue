@@ -14,14 +14,7 @@ const emit = defineEmits([
 const showEditModal = ref(false)
 const userEditing = ref({})
 const deleteUserCallback = (user) => {
-    emit('deleteUser',
-        {
-            id: user.id,
-            name: user.name,
-            username: user.username,
-            email: user.email
-        }
-    )
+    emit('deleteUser', user)
 }
 
 const updateUser = (user) => {
