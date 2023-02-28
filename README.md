@@ -1578,3 +1578,148 @@ As a result I always got the index -1, which of course is wrong and indicates an
 Funny enough it still worked to delete one user, but not the one a human user would have wanted to.
 
 I fixed it by sending the complete `user` object as part of the call to `emit`.
+
+### Vue Router
+
+The router is an object to construct multiple routes for the application.
+Rest principle. The way to implent this in vue is with `vue-router` which
+is used as a plugin like pinia.
+
+#### Router and Routes Definitions
+
+The code for the routing is put in a separate folder.
+```
+.
+├── index.html
+├── src
+│   ├── App.vue
+│   ├── components
+│   ├── router
+        ├── index.js
+```
+
+The needed pieces of code are `createRouter` to create a ... router and
+an object to configure how the URL should work.
+
+```js
+import { createRouter, createWebHistory } from 'vue-router'
+
+const router = createRouter({
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes: []
+})
+
+export default router
+```
+
+`createWebHistory` will create URL in the structure of `example.com/filename`.
+However, they describe that web server config could have a difficulty with that.
+
+The config nginx config described in the docs for that is:
+```nginx
+location / {
+  try_files $uri $uri/ /index.html;
+}
+```
+Source: https://router.vuejs.org/guide/essentials/history-mode.html#nginx
+
+
+Interestingly, we also learned how to use environment variables here:
+```js
+import.meta.env.BASE_URL
+```
+
+Ref: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import.meta
+
+To be reachable, the module needs to `export` the variable.
+In that case we can import the router variable using `import { router } from '@/router/index'`.
+Thx to the `export default` we will not need to name the var and use ` import Alias from '@/router/index''`.
+
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import
+
+
+The Individual routes are described with an object of three properties:
+path, name and component.
+```js
+// routes
+    {
+      path: '/blog',
+      name: 'blog',
+      // route level code-splitting
+      // this generates a separate chunk (Blog.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('../views/BlogView.vue')
+    }
+```
+The component can be described with `import("path/to/the/module")` or
+the component can be imported and used in the definition
+
+
+#### Plugging the Router into the Application
+
+The router is plugged in like pinia into the Vue application.
+Unlike pinia however, we plug in the configured var of our router module
+instead of the library.
+```js
+import router from './router'
+//
+app.use(router)
+```
+
+#### Usage in the View
+
+Usually, in an SPA, the main/center component is switched out.
+In our case the `AppContent` component is switched out with a URL aware placeholder component
+called `RouterView`
+
+```js
+
+<script setup>
+import { RouterView } from 'vue-router'
+<script>
+
+<template>
+   <AppContent>
+   <RouterView></RouterView>
+// ...
+</template>
+```
+
+### Indicating the current Location
+
+Lastly, the current location can be highlighted on the HTML itself.
+But for that, we need to use the `RouterLink` element of the `vue-router`
+
+```js
+ <li><RouterLink to="/">Home</RouterLink></li>
+```
+
+This link component injects `class="router-link-active` and `router-link-exact-active` classes
+into the `a` HTML tag which is currently active.
+
+
+#### Testing 
+Like pinia, the router is passed into the `mount` function
+```js
+const wrapper = mount(App, {
+      global: {
+          plugins: [
+              router,
+              createTestingPinia({
+                  createSpy: vi.fn
+              })
+          ]
+      }
+});
+```
+
+If we want to test the site with specific route we will need to use:
+```js
+await router.push('/')
+```
+in case we want to hit the landing page. That makes it necessary to 
+use the `async` keyword on the test callback declaration. 
+
+If we want to test sth which depends on the current route
+we will need to use `mount` instead of `shallowMount` (see tests for `AppHeader`)

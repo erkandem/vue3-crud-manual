@@ -1,15 +1,18 @@
 import { describe, it, expect } from 'vitest'
-import { shallowMount } from '@vue/test-utils'
+import { mount } from '@vue/test-utils'
+import router from '@/router/index'
 import AppHeader from '@/components/AppHeader.vue'
 
 describe('AppHeader.vue Test', () => {
-  it('renders message when component is created', () => {
-    // render the component
-    const wrapper = shallowMount(
-        AppHeader,
+  it('renders message when component is created', async () => {
+    await router.push("/")
+    const wrapper = mount(AppHeader,
         {
           propsData: {
             title: 'Vue Project'
+          },
+          global: {
+            plugins: [router]
           }
         }
     )
